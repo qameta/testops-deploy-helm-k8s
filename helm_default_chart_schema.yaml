@@ -1,0 +1,6 @@
+apiVersion: str()
+name: str()
+version: str()
+appVersion: str()
+kubeVersion: str()
+dependencies: list()

@@ -1,0 +1,6 @@
+remote: origin
+target-branch: master
+chart-dirs:
+  - charts
+check-version-increment: false
+validate-maintainers: false

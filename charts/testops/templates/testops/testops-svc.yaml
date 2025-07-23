@@ -1,0 +1,26 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "testops.fullname" . }}
+  labels:
+    app: {{ template "testops.fullname" . }}
+    version: v1
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+{{- if .Values.annotations.service }}
+    annotations:
+{{- range $key, $value := .Values.annotations.service }}
+        {{ $key }}: {{ $value | quote }}
+{{- end }}
+{{- end }}
+spec:
+  selector:
+    app: {{ template "testops.fullname" . }}
+    version: v1
+  ports:
+  - name: http
+    targetPort: {{ .Values.port }}
+    port: {{ .Values.port }}
+  type: ClusterIP

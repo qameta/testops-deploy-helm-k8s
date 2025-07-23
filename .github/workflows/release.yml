@@ -1,0 +1,39 @@
+name: Release Charts
+
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: master
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Retrieve and verify version
+        run: |
+          CHART_VERSION=$(grep -m 1 '^version:' charts/testops/Chart.yaml | sed 's/version:[[:space:]]*//')
+          if [ "${{ github.event.release.tag_name }}" != "${CHART_VERSION}" ]; then
+            echo "Version mismatch: release tag ${{ github.event.release.tag_name }} does not match Chart.yaml version ${CHART_VERSION}"
+            exit 1
+          fi
+          echo "CHART_VERSION=$CHART_VERSION" >> $GITHUB_ENV
+
+      - name: Helm publish
+        uses: qameta/artifactory-publisher@v1
+        with:
+          endpoint: https://dl.qameta.io/artifactory/helm/
+          username: ${{ secrets.ARTIFACTORY_USER }}
+          password: ${{ secrets.ARTIFACTORY_PASS }}
+          repoName: testops
+          chart: charts/testops
+          version: "${CHART_VERSION}"

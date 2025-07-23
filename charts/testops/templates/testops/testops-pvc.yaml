@@ -1,0 +1,31 @@
+{{- if eq .Values.storage.type "CSI" }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "testops.fullname" . }}
+  labels:
+    app: {{ template "testops.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+{{- with .Values.storage.csi.annotations  }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- with .Values.storage.csi.finalizers  }}
+  finalizers:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+  accessModes:
+    - {{ .Values.storage.csi.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.storage.csi.size | quote }}
+{{- if .Values.storage.csi.existingVolumeName }}
+  volumeName: {{ .Values.storage.csi.existingVolumeName }}
+{{- else }}
+  storageClassName: {{ .Values.storage.csi.storageClass }}
+{{- end }}
+{{- end }}

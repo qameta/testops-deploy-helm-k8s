@@ -1,0 +1,14 @@
+{{- if .Values.rbac.enabled -}}
+# create rbac role with permission for discovery
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ template "testops.name" . }}-namespace-reader
+  labels:
+    app: {{ template "testops.name" . }}
+    chart: {{ template "testops.chart" . }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+rules:
+{{ toYaml .Values.rbac.rules | indent 2}}
+{{- end -}}
