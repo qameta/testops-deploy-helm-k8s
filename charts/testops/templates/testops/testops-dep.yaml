@@ -107,8 +107,15 @@ spec:
 {{- include "renderCommonEnvs" . | indent 10 }}
 {{- include "renderCryptoEnvs" . | indent 10 }}
 {{- include "renderDataBaseEnvs" . | indent 10 }}
-{{- include "renderRabbitMQEnvs" . | indent 10 }}
 {{- include "renderRedisEnvs" . | indent 10 }}
+
+{{- if eq .Values.messaging.type "rabbitmq" }}
+{{- include "renderRabbitMQEnvs" . | indent 10 }}
+{{- end }}
+
+{{- if eq .Values.messaging.type "sqs" }}
+{{- include "renderSQSEnvs" . | indent 10 }}
+{{- end }}
 
 {{- if .Values.auth.ldap.enabled }}
 {{- include "renderLDAPEnvs" . | indent 10 }}
