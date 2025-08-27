@@ -39,4 +39,4 @@ jobs:
       - name: Run chart-testing (install)
         timeout-minutes: 10
         run: |
-          ct install --config ct.yaml --helm-extra-set-args "--set=smtp.enabled=false --set=postgresql.enabled=true --set=minio.enabled=true --set=image.authRequired.enabled=true --set=image.registry=dl.qameta.io --set=image.repository=docker-internal --set=image.imageName=testops --set=image.authRequired.credsKubeSecretName=qameta-secret --set=image.authRequired.username=${{ secrets.ARTIFACTORY_USER }} --set=image.authRequired.password=${{ secrets.ARTIFACTORY_PASS }}"
+          ct install --config ct.yaml --helm-extra-set-args "--set=smtp.enabled=false --set=postgresql.enabled=true --set=minio.enabled=true --set=image.authRequired.enabled=true --set=image.registry=dl.qameta.io --set=image.repository=docker-internal --set=image.imageName=testops-on-premise --set=image.authRequired.credsKubeSecretName=qameta-secret --set=image.authRequired.username=${{ secrets.ARTIFACTORY_USER }} --set=image.authRequired.password=${{ secrets.ARTIFACTORY_PASS }}"

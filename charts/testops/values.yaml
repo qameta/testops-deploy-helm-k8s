@@ -16,9 +16,9 @@
 # This is a TestOps release to be deployed, you need to specify a correct tag for the application image
 # The version of application and version of chart are not synchronized
 # for version upgrades, select the desired version of the application and the most recent chart
-# minimal version of Testops supported by this chart is 5.3.3
+# minimal version of Testops supported by this chart is 25.3.2
 ############################################################################################################
-version: 25.3.1
+version: 25.3.2
 
 ############################################################################################################
 # Deploy related
