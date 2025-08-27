@@ -152,7 +152,7 @@ spec:
 {{- if .Values.probes.enabled }}
           startupProbe:
             httpGet:
-              path: /api/management/health/readiness
+              path: /api/management/health/liveness
               port: http
 {{ toYaml .Values.probes.startup.probe | indent 12 }}
           livenessProbe:
@@ -162,7 +162,7 @@ spec:
 {{ toYaml .Values.probes.liveness.probe | indent 12 }}
           readinessProbe:
             httpGet:
-              path: /api/management/health/liveness
+              path: /api/management/health/readiness
               port: http
 {{ toYaml .Values.probes.readiness.probe | indent 12 }}
 {{- end }}

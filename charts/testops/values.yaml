@@ -457,13 +457,13 @@ probes:
   startup:
     # Define startup probe parameters
     probe:
+      initialDelaySeconds: 10
       failureThreshold: 30
       periodSeconds: 10
   # Liveness probe configuration
   liveness:
     # Define liveness probe parameters
     probe:
-      initialDelaySeconds: 0
       periodSeconds: 30
       timeoutSeconds: 1
       successThreshold: 1
@@ -472,7 +472,6 @@ probes:
   readiness:
     # Define readiness probe parameters
     probe:
-      initialDelaySeconds: 0
       periodSeconds: 10
       timeoutSeconds: 1
       successThreshold: 1
