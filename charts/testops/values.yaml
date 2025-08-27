@@ -820,7 +820,7 @@ messaging:
     # If a value is left empty, a default name will be constructed using the queuePrefix and a standard suffix
     # (e.g., "testops_allure_upload_process").
     ############################################################################################################
-    queues: { }
+    queues: {}
       # uploadProcess: ""
       # uploadProcessDlq: ""
       # uploadPostProcess: ""
