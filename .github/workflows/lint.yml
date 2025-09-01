@@ -39,4 +39,19 @@ jobs:
       - name: Run chart-testing (install)
         timeout-minutes: 10
         run: |
-          ct install --config ct.yaml --helm-extra-set-args "--set=smtp.enabled=false --set=postgresql.enabled=true --set=minio.enabled=true --set=image.authRequired.enabled=true --set=image.registry=dl.qameta.io --set=image.repository=docker-internal --set=image.imageName=testops --set=image.authRequired.credsKubeSecretName=qameta-secret --set=image.authRequired.username=${{ secrets.ARTIFACTORY_USER }} --set=image.authRequired.password=${{ secrets.ARTIFACTORY_PASS }}"
+          # Define all extra arguments for Helm in a bash array for readability
+          EXTRA_ARGS=(
+            "--set=smtp.enabled=false"
+            "--set=postgresql.enabled=true"
+            "--set=minio.enabled=true"
+            "--set=image.authRequired.enabled=true"
+            "--set=image.registry=dl.qameta.io"
+            "--set=image.repository=docker-internal"
+            "--set=image.imageName=testops-on-premise"
+            "--set=image.authRequired.credsKubeSecretName=qameta-secret"
+            "--set=image.authRequired.username=${{ secrets.ARTIFACTORY_USER }}"
+            "--set=image.authRequired.password=${{ secrets.ARTIFACTORY_PASS }}"
+            "--set=probes.enabled=false"
+          )
+
+          ct install --config ct.yaml --helm-extra-set-args "${EXTRA_ARGS[*]}"

@@ -9,6 +9,10 @@ Entries are ordered by priority:
 3. `[ENHANCEMENT]` Improvements to existing features
 4. `[BUGFIX]` Fixes for defects
 
+## 5.22.0
+
+- [FEATURE] Added support of AWS SQS messaging service.
+
 ## 5.21.1
 
 - [ENHANCEMENT] Removed hyphen (`-`) from environment variable names in datasource migration configuration for improved naming consistency. For example: `SPRING_DATASOURCE-MIGRATION_USERNAME` -> `SPRING_DATASOURCEMIGRATION_USERNAME`.

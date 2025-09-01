@@ -107,8 +107,15 @@ spec:
 {{- include "renderCommonEnvs" . | indent 10 }}
 {{- include "renderCryptoEnvs" . | indent 10 }}
 {{- include "renderDataBaseEnvs" . | indent 10 }}
-{{- include "renderRabbitMQEnvs" . | indent 10 }}
 {{- include "renderRedisEnvs" . | indent 10 }}
+
+{{- if eq .Values.messaging.type "rabbitmq" }}
+{{- include "renderRabbitMQEnvs" . | indent 10 }}
+{{- end }}
+
+{{- if eq .Values.messaging.type "sqs" }}
+{{- include "renderSQSEnvs" . | indent 10 }}
+{{- end }}
 
 {{- if .Values.auth.ldap.enabled }}
 {{- include "renderLDAPEnvs" . | indent 10 }}
@@ -145,7 +152,7 @@ spec:
 {{- if .Values.probes.enabled }}
           startupProbe:
             httpGet:
-              path: /api/management/health/readiness
+              path: /api/management/health/liveness
               port: http
 {{ toYaml .Values.probes.startup.probe | indent 12 }}
           livenessProbe:
@@ -155,7 +162,7 @@ spec:
 {{ toYaml .Values.probes.liveness.probe | indent 12 }}
           readinessProbe:
             httpGet:
-              path: /api/management/health/liveness
+              path: /api/management/health/readiness
               port: http
 {{ toYaml .Values.probes.readiness.probe | indent 12 }}
 {{- end }}

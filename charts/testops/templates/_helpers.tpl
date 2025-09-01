@@ -111,7 +111,7 @@
   - name: ALLURE_MAIL_ROOT
     value: "{{ .Values.email }}"
   - name: SPRING_PROFILES_ACTIVE
-    value: kubernetes
+    value: {{ include "generateSpringActiveProfiles" . | quote }}
   - name: ALLURE_ENDPOINT
     value: "{{ ternary "https" "http" .Values.network.tls.enabled }}://{{ .Values.instanceFqdn }}"
   - name: SERVER_PORT
@@ -462,6 +462,58 @@
     value: {{ .Values.storeConsumers | quote }}
 {{- end }}
 
+{{- define "renderSQSEnvs" }}
+  - name: ALLURE_MESSAGING_SQS_CLIENT_ENDPOINT
+    value: {{ .Values.messaging.sqs.endpoint }}
+  - name: ALLURE_MESSAGING_SQS_CLIENT_REGION
+    value: {{ .Values.messaging.sqs.region }}
+{{- if not .Values.storage.awsSTS.enabled }}
+  - name: ALLURE_MESSAGING_SQS_CLIENT_ACCESSKEY
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "testops.secret.name" . }}
+        key: "sqsAccessKey"
+  - name: ALLURE_MESSAGING_SQS_CLIENT_SECRETKEY
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "testops.secret.name" . }}
+        key: "sqsSecretKey"
+{{- end }}
+  - name: ALLURE_MESSAGING_SQS_PARSE_MAXCONCURRENTMESSAGES
+    value: {{ .Values.messaging.sqs.parse.maxConcurrentMessages }}
+  - name: ALLURE_MESSAGING_SQS_PARSE_MAXMESSAGESPERPOLL
+    value: {{ .Values.messaging.sqs.parse.maxMessagesPerPoll }}
+  - name: ALLURE_MESSAGING_SQS_PARSE_VISIBILITYTIMEOUT
+    value: {{ .Values.messaging.sqs.parse.visibilityTimeout }}
+  - name: ALLURE_MESSAGING_SQS_STORE_MAXCONCURRENTMESSAGES
+    value: {{ .Values.messaging.sqs.store.maxConcurrentMessages }}
+  - name: ALLURE_MESSAGING_SQS_STORE_MAXMESSAGESPERPOLL
+    value: {{ .Values.messaging.sqs.store.maxMessagesPerPoll }}
+  - name: ALLURE_MESSAGING_SQS_STORE_VISIBILITYTIMEOUT
+    value: {{ .Values.messaging.sqs.store.visibilityTimeout }}
+  - name: ALLURE_MESSAGING_SQS_STORECOMPLETE_MAXCONCURRENTMESSAGES
+    value: {{ .Values.messaging.sqs.storeComplete.maxConcurrentMessages }}
+  - name: ALLURE_MESSAGING_SQS_STORECOMPLETE_MAXMESSAGESPERPOLL
+    value: {{ .Values.messaging.sqs.storeComplete.maxMessagesPerPoll }}
+  - name: ALLURE_MESSAGING_SQS_STORECOMPLETE_VISIBILITYTIMEOUT
+    value: {{ .Values.messaging.sqs.storeComplete.visibilityTimeout }}
+  - name: ALLURE_MESSAGING_SQS_UPLOAD_PROCESS
+    value: {{ include "generateSqsQueueName" (dict "root" . "key" "uploadProcess" "suffix" "allure_upload_process") | quote }}
+  - name: ALLURE_MESSAGING_SQS_UPLOAD_PROCESS_DLQ
+    value: {{ include "generateSqsQueueName" (dict "root" . "key" "uploadProcessDlq" "suffix" "allure_upload_process_dlq") | quote }}
+  - name: ALLURE_MESSAGING_SQS_UPLOAD_POST_PROCESS
+    value: {{ include "generateSqsQueueName" (dict "root" . "key" "uploadPostProcess" "suffix" "allure_upload_post_process") | quote }}
+  - name: ALLURE_MESSAGING_SQS_UPLOAD_POST_PROCESS_DLQ
+    value: {{ include "generateSqsQueueName" (dict "root" . "key" "uploadPostProcessDlq" "suffix" "allure_upload_post_process_dlq") | quote }}
+  - name: ALLURE_MESSAGING_SQS_UPLOAD_COMPLETE_PROCESS
+    value: {{ include "generateSqsQueueName" (dict "root" . "key" "uploadCompleteProcess" "suffix" "allure_upload_complete_process") | quote }}
+  - name: ALLURE_MESSAGING_SQS_INTEGRATION_EXPORT_LAUNCH
+    value: {{ include "generateSqsQueueName" (dict "root" . "key" "integrationExportLaunch" "suffix" "allure_integration_it_export_launch") | quote }}
+  - name: ALLURE_MESSAGING_SQS_SYSTEM_CLEAN_BLOB_STORAGE
+    value: {{ include "generateSqsQueueName" (dict "root" . "key" "systemCleanBlobStorage" "suffix" "allure_system_storage_clean") | quote }}
+  - name: ALLURE_MESSAGING_SQS_SYSTEM_DEAD_LETTER
+    value: {{ include "generateSqsQueueName" (dict "root" . "key" "systemDeadLetter" "suffix" "allure_system_dead_letter") | quote }}
+{{- end }}
 
 {{- define "renderRedisEnvs" }}
   - name: SPRING_SESSION_STORE_TYPE
@@ -658,3 +710,38 @@
   {{- printf "%s/" .Values.image.repository }}
 {{- end }}
 {{- end }}
+
+{{/*
+Generate SPRING_PROFILES_ACTIVE env
+*/}}
+{{- define "generateSpringActiveProfiles" -}}
+  {{- if and .Values.env.open .Values.env.open.SPRING_PROFILES_ACTIVE -}}
+    {{- .Values.env.open.SPRING_PROFILES_ACTIVE -}}
+  {{- else -}}
+    {{- $profiles := list "kubernetes" -}}
+    {{- if eq .Values.messaging.type "rabbitmq" -}}
+      {{- $profiles = append $profiles "rabbitmq" -}}
+    {{- else if eq .Values.messaging.type "sqs" -}}
+      {{- $profiles = append $profiles "sqs" -}}
+    {{- end -}}
+    {{- join "," $profiles -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+Generate SQS Queue Name
+It checks for an explicit queue name in .Values.messaging.sqs.queues.<key>.
+If not found, it constructs a default name using .Values.messaging.sqs.queuePrefix and a provided suffix.
+*/}}
+{{- define "generateSqsQueueName" -}}
+  {{- $queues := .root.Values.messaging.sqs.queues | default dict -}}
+  {{- if and (hasKey $queues .key) (index $queues .key) -}}
+    {{- index $queues .key -}}
+  {{- else -}}
+    {{- if .root.Values.messaging.sqs.queuePrefix -}}
+      {{- printf "%s_%s" .root.Values.messaging.sqs.queuePrefix .suffix -}}
+    {{- else -}}
+      {{- .suffix -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
