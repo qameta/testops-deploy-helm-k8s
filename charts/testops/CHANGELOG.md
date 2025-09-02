@@ -9,7 +9,7 @@ Entries are ordered by priority:
 3. `[ENHANCEMENT]` Improvements to existing features
 4. `[BUGFIX]` Fixes for defects
 
-## 5.22.0
+## 5.25.0
 
 - [FEATURE] Added support of AWS SQS messaging service.
 
