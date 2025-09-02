@@ -1,0 +1,981 @@
+############################################################################################################
+#                                            WARNING
+# This configuration MUST NOT BE USED FOR THE PRODUCTION if Postgresql and minio are deployed by this chart (enabled = true)
+# Instances deployed with DB and minio as enabled = true cannot be supported
+#
+# Database must be deployed separately as stand-alone server.
+# Database must not be deployed in a container or a pod
+# Database storage disks must be SSDs only
+# S3 like minio must be deployed separately on a dedicated machine with SSDs as storage HW
+############################################################################################################
+
+# The version of this chart is not synchronized with the version of TestOps application
+
+############################################################################################################
+# Deploy related / App related
+# This is a TestOps release to be deployed, you need to specify a correct tag for the application image
+# The version of application and version of chart are not synchronized
+# for version upgrades, select the desired version of the application and the most recent chart
+# minimal version of Testops supported by this chart is 25.3.2
+############################################################################################################
+version: 25.3.2
+
+############################################################################################################
+# Deploy related
+# This is the name of app to be used in the deployment
+############################################################################################################
+appName: testops
+
+############################################################################################################
+# Deploy related
+# `image` section defines the source of the binary files of the application
+# this section needs to be updated as follows:
+# - registry – the name of the registry described in the documentation of the deployment with the Helm Chart or used by your company as a proxy
+# - repository – the name of the repo described in the documentation of the deployment with the Helm Chart or used by your company
+# - imageName - name of the image to be pulled. Leave as is and do not change without consulting with the support.
+# - username - the username for the images registry, either owned by us or managed by your organization
+# - password - the password for the images registry, either owned by us or managed by your organization
+# - credsKubeSecretName is the label for the secret where chart should store registry authentication info
+############################################################################################################
+image:
+  registry: registry-address-here
+  repository: repo-name-see-in-docs
+  imageName: testops
+  pullPolicy: IfNotPresent
+  authRequired:
+    enabled: true
+    username: username-received-from-sales
+    password: password-received-from-sales
+    credsKubeSecretName: testops-secret-name-here
+    useExternalSecret: false
+    externalSecretName: registry-creds-external
+
+############################################################################################################
+# Deploy related
+# replicaCount - number of testops service instances running in parallel to share the workload
+############################################################################################################
+replicaCount: 1
+
+############################################################################################################
+# Deploy related
+# instanceFQDN is a fully qualified domain mame of Testops instance.
+# instanceFQDN must be the same for end users to access the web UI and for the integration
+############################################################################################################
+instanceFqdn: testops.host.name
+
+############################################################################################################
+# Deploy related
+# This is the application port where Testops will be accessible after deployment in k8s environment
+############################################################################################################
+port: 8080
+
+############################################################################################################
+# Deploy related
+# strategy for updating. RollingUpdate is recommended for Testops
+# following parameters manage the deployment details specific for your environment
+############################################################################################################
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 0
+
+############################################################################################################
+# Node Affinity and Tolerations
+# These parameters control how the pods are scheduled onto nodes in your cluster.
+# Tolerations allow pods to tolerate (or "ignore") node taints, while node affinity
+# and node selector specify conditions for pod placement.
+############################################################################################################
+tolerations: []
+affinity: {}
+nodeSelector: {}
+
+############################################################################################################
+# Deploy related
+# recommended CPU and RAM resources for k8s to dedicate for each running Testops replica
+############################################################################################################
+resources:
+  requests:
+    memory: 1Gi
+    cpu: 1
+  limits:
+    memory: 3Gi
+    cpu: 2
+
+############################################################################################################
+# timeZone of the instance. Update your time zone accordingly to the real settings of your server/VM whatsoever.
+############################################################################################################
+timeZone: "Europe/London"
+
+############################################################################################################
+# Email address of the very first user of TestOps instance to send the invitation.
+# This is in fact the first admin of the system that will invite other users.
+# Make sure SMTP parameters are set to send the invite.
+# SMTP server settings are mandatory for the creation of first user.
+############################################################################################################
+email: you@company.com
+
+############################################################################################################
+# cryptoPass parameter is used to encrypt sensitive data (passwords, API tokens in the database)
+# Come up with some phrase, then use Base64 encoding, and paste encoded value here.
+# In this example, we use the phrase "This phrase must be kept in a dark dry place." and encoded it as Base64
+# phrase mustn't be changed over time, otherwise your integrations would stop working, and you will need to re-submit data
+############################################################################################################
+cryptoPass: VGhpcyBwaHJhc2UgbXVzdCBiZSBrZXB0IGluIGEgZGFyayBkcnkgcGxhY2Uu
+
+############################################################################################################
+# jwtSecret is a seed phrase for the generation of bearer tokens used for authentication of API calls
+# the longer the phrase is, the more CPU resources are required for the generation
+# recommended length is between 8 and 16 chars
+# use base64 encoder and paste the value below. This value can be changed over time, it won't affect the users.
+############################################################################################################
+jwtSecret: L0weiVaXojihdwh+Dgx1GQ==
+
+############################################################################################################
+# bearerTokenExpirationAfter defines the expiration time of Bearer Tokens generated for the authentication
+# default is 60 minutes (3600 seconds)
+# if longer validity of a token is required, update the value with the new one, use seconds
+############################################################################################################
+bearerTokenExpirationAfter: 57600
+
+inactiveUserSessionDuration: 10d
+
+############################################################################################################
+# Annotation configuration block
+# This section defines annotations for enhancing the deployment and service configurations.
+############################################################################################################
+annotations:
+  # Deployment Annotations
+  deployment:
+    # Define a multiline pattern for Elasticsearch logs
+    co.elastic.logs/multiline.pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:"
+    # Set multiline matching behavior to 'after'
+    co.elastic.logs/multiline.match: after
+    # Negate multiline pattern for Elasticsearch logs
+    co.elastic.logs/multiline.negate: "true"
+  # Service Annotations
+  service: {}
+    # Example: Add custom annotation for service
+    # custom.annotation/example: "some-value"
+
+############################################################################################################
+# Labels configuration block
+# This section defines labels for enhancing the deployment and resource identification.
+############################################################################################################
+labels:
+  deployment: {}
+  # Example of custom labels that can be added:
+  # environment: "production"
+  # app_version: "1.0.0"
+  # team: "testops"
+
+############################################################################################################
+# certificates section defines the list of endpoints using self-signed certificates
+# endpoints using self-signed certificates must be added to this section with ports as comma separated list
+# example: <>
+# endpoints: ldaps.example.com:636,rabbit.example.com:5672
+############################################################################################################
+certificates:
+  # In case you use self-signed certificates, make a configmap with list of certificates
+  configmapName:
+  endpoints:
+
+############################################################################################################
+# env section allows passing extra environment variables to the service in case you require something specific
+# and it is not included into the standard chart
+# usage example
+# env:
+#   open:
+#     ENV_VAR_ONE: "value1"
+#     ENV_VAR_TWO: "value2"
+#     ENV_VAR_THREE: value3
+############################################################################################################
+env:
+  open: {}
+
+############################################################################################################
+# postgresql is a crucial component for TestOps deployment, it stores all the historical data and documentation
+# if enabled (postgresql.enabled = true) this chart will deploy postgresql 15 server and use in for the application
+# deploying postgres using this chart CANNOT be used as production deployment (such deployment cannot be supported
+# due to potential performance issues we see at our clients) but will save some time for PoC and demo.
+# for production postgresql.enabled must be set to false and standalone database server is to be used.
+############################################################################################################
+postgresql:
+  enabled: false
+  image:
+    repository: bitnamilegacy/postgresql
+  primary:
+    initdb:
+      scripts:
+        init.sql: |
+          CREATE DATABASE testops TEMPLATE template0 ENCODING 'utf8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8';
+    persistence:
+      size: 5Gi
+  auth:
+    username: testops
+    password: testops
+
+############################################################################################################
+# Init Container Job. It's responsible for assuring connection between TestOps pod and Database
+# It also works on external databases
+############################################################################################################
+databaseInit:
+  # If you have private registry it should look like reg.domain.tld/postgres:15
+  image: postgres:15
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+############################################################################################################
+# datasources
+# there are 2 options for working with the database:
+# 1) one datasource, i.e. production database with Read/Write access by the application for both – test results upload
+# and requesting the historical information by dashboards (widgets)
+# 2) two datasources, one with Read/Write access for upload process, and replica with RO access for requesting
+# the historical information by dashboards (widgets)
+############################################################################################################
+datasources:
+############################################################################################################
+# mainDatasource defines parameters for connecting to the database in Read/ Write mode for the upload process
+# App related
+############################################################################################################
+  mainDatasource:
+    # If Patroni is enabled, this setting will be ignored, and the hosts from the Patroni configuration will be used instead.
+    dbHost: db.example.com
+    dbPort: 5432
+    dbName: testops
+    username: testops
+    password: testops
+    ############################################################################################################
+    # App related
+    # appConnectionTimeout (milliseconds) defines the max time the application waits for the response from the database
+    # if the timeout is exceeded, and there is no answer from the database side, app drops the connection
+    ############################################################################################################
+    appConnectionTimeout: 60000
+    ############################################################################################################
+    # App related
+    # appMaxDBConnection defines the number of database connections used by single replica of Testops service
+    # total allowed DB connections are defined by appMaxDBConnection multiplied by value of replicaCount
+    # these connections are shared between end users accessing the data via UI
+    # if uploaderDatasource is set to disabled, please make sure you are setting appMaxDBConnection at least equal to 10
+    ############################################################################################################
+    appMaxDBConnection: 10
+    sslMode: prefer
+############################################################################################################
+# App related
+# uploaderDatasource.appMaxDBConnection defines the DB connection pool used by single replica of Testops service
+# for processing of the test result upload
+# if disabled, please make sure you are setting appMaxDBConnection at least equal to 10
+############################################################################################################
+  uploaderDatasource:
+    enabled: false
+    appMaxDBConnection: 5
+    appConnectionTimeout: 60000
+############################################################################################################
+# App related
+# analyticsDatasource defines the pool of DB connections and set of parameters for requesting the historical data
+# and statistics by dashboards / widgets from the DB
+# analyticsDatasource.dbHost could refer to the R/W production database as well as to the RO replica
+# for the highly loaded system we recommend using RO replica for accessing the historical data / statistics
+############################################################################################################
+  analyticsDatasource:
+    enabled: false
+    # If Patroni is enabled, this setting will be ignored, and the hosts from the Patroni configuration will be used instead.
+    dbHost: db.example-ro.com
+    dbPort: 5432
+    dbName: testops
+    username: testops
+    password: testops
+    appMaxDBConnection: 5
+    appConnectionTimeout: 60000
+    sslMode: prefer
+############################################################################################################
+# App related
+# migrationDatasource defines the pool of DB connections and set of parameters for performing the data
+# migration tasks inside the database
+# A separate connection pool is required to exclude the influence of migration tasks on the work of users in
+# the UI and loading of autotest results
+# maxDBMigrationConn defines max number of connections for the migration tasks
+# minDBMigrationIdle defines the min number of connections system must keep alive even in idle state,
+#   please keep default unless you have explicit recommendation from the support
+# migrationSchedulerPoolSize defines the number of threads for the migration tasks, please keep default
+#   please keep default unless you have explicit recommendation from the support
+############################################################################################################
+  migrationDatasource:
+    maxDBMigrationConn: 2
+    minDBMigrationIdle: 0
+    migrationSchedulerPoolSize: 1
+############################################################################################################
+# Patroni configuration for high availability PostgreSQL setup.
+# If enabled, the application will use a list of Patroni-managed database hosts instead of a single host.
+# - enabled: Enables or disables Patroni integration.
+# - hosts: List of database nodes managed by Patroni, typically including multiple replicas.
+# - targetServerType: Defines the type of database node to connect to (e.g., 'master' for write operations, 'replica' for read-only access).
+############################################################################################################
+  patroni:
+    enabled: false
+    hosts:
+      - testops-db1:5432
+      - testops-db2:5432
+    targetServerType: master
+
+############################################################################################################
+#  Proxy Configuration
+#  These settings manage the proxy configuration for your application.
+#  Enabling the proxy with specific host, port, and exclusion patterns.
+#  Adjust the 'enabled' parameter to control whether the proxy is active or not.
+############################################################################################################
+proxy:
+  enabled: false
+  proxyHost: example.com
+  proxyPort: 3128
+  nonProxy: localhost|127.*|10.*|172.16.*|*.local
+  noProxy: localhost,127.0.0.0/8,10.0.0.0/8,172.16.0.0/12, .local
+
+############################################################################################################
+# App related
+# THIS IS TO BE SET to enabled: true. Configuration of SMTP is a must for the following.
+# - first application run and initialisation
+# - adding new local users to TestOps instance
+# - restoring (resetting) lost passwords
+# SMTP must be enabled and correctly configured for a production system
+# below we have correct synthetic and hence non-working example
+# please note, gmail does not allow using the real password for SMTP authentication, you need to create and use
+# so-called application password
+# the example parameters below are suitable for usage with gmail smtp (you need to add real username and password, though)
+############################################################################################################
+smtp:
+  enabled: true
+  host: smtp.gmail.com
+  port: 587
+  authEnabled: true
+  from: noreply@testops.cloud
+  username: sa-testops-smtp
+  password: ThisMUstBeRealPasswordOrAppPassword
+  # https://en.wikipedia.org/wiki/Opportunistic_TLS
+  startTLSEnabled: true
+  startTLSRequired: true
+  sslEnabled: false
+  sslTrust: smtp.gmail.com
+
+############################################################################################################
+# App related
+# storage section defines the configuration for the app to work with an Artifacts storage solution
+# 3 types of storage are supported:
+# 1) 'S3' - something supporting AWS S3 SDK like minio, ceph;
+# 2) S3_ASYNC - recommended for AWS S3, this option supports parameters described in .Values.storage.s3.advancedS3SDK
+# S3_ASYNC allows usage of optimised commands towards S3 solution (e.g. delete objects). Consult your solution
+# documentation before using this option
+# 3) CSI
+# For CSI refer to https://kubernetes-csi.github.io/docs/drivers.html
+# S3 is preferable. The best option is using SaaS S3 AWS or other S3 comparable services.
+# It's highly recommended disabling versioning for S3 from the very start
+# As last resort use minio included in this very chart, but remember, the physical storage must be SSD only.
+# CSI (Local storage) is for advanced use. First, make sure you have ReadWriteMany CSI Driver Installed and SetUp
+############################################################################################################
+storage:
+  # Options are:
+  # - S3
+  # - S3_ASYNC
+  # - CSI
+  type: "S3"
+  s3:
+    ############################################################################################################
+    # advancedS3SDK defines whether AWS S3 SDK ver 2 to support copy, move and DeleteObjects (many) operations
+    # AWS S3 supports these operations, minio supports these operations, for the rest S3 solutions please consult
+    # the used solution manuals. If your solution does not support one of the mentioned operations, please disable it below.
+    # advancedS3SDK is working only with storage.type = S3_ASYNC, if enabled with S3 or CSI, setting won't have any effect.
+    ############################################################################################################
+    advancedS3SDK:
+      enabled: false
+      bulkRemoveSupported: true
+      moveSupported: true
+      copySupported: true
+    ############################################################################################################
+    # For S3 endpoint URL use https://s3.<region>.amazonaws.com if your region is not us-east-1
+    # For S3 endpoint URL use https://s3.amazonaws.com if your region is us-east-1
+    ############################################################################################################
+    endpoint: https://s3.amazonaws.com
+    # Some providers have path style access like s3.provider.com/bucket-name others have domain style
+    # Like bucket-name.s3.provider.com. Choose your provider's
+    ############################################################################################################
+    # AWS S3 supports both pathstyle: false/true, other solutions most likely support false only
+    ############################################################################################################
+    pathstyle: false
+    bucket: testops-testops
+    region: us-east-1
+    # If you run Testops in AWS EKS you don't need stating accessKey & secretKey
+    accessKey: WBuetMuTAMAB4M78NG3gQ4dCFJr3SSmU
+    secretKey: m9F4qupW4ucKBDQBWr4rwQLSAeC6FE2L
+    ############################################################################################################
+    # AWS Server Side Encryption
+    # You can configure AWS SSE for S3 solutions that support it.
+    # This can be set to use SSE-KMS or DSSE-KMS for now.
+    # Ref: https://docs.aws.amazon.com/AmazonS3/latest/userguide/serv-side-encryption.html
+    ############################################################################################################
+    serverSideEncryption:
+      # Set this to 'true' to enable SSE encryption. If set to 'false', all other settings will be ignored.
+      enabled: false
+      # Specify the SSE-encryption type. Options are: 'AWS_KMS' or 'AWS_KMS_DSSE'.
+      type: AWS_KMS
+      # Specify the customer-managed key ID or full KMS-Key ARN.
+      # If not specified, AWS will use the default AWS-KMS-managed key.
+      # The ARN format is: arn:aws:kms:<region>:<account-id>:key/<key-id>
+      # Ref: https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html#aws-managed-customer-managed-keys
+      keyId:
+  csi:
+    storageClass: ""
+    existingVolumeName: ""
+    mountPoint: /data
+    accessMode: ReadWriteMany
+    size: 50Gi
+    annotations: {}
+    finalizers:
+      - kubernetes.io/pvc-protection
+  ############################################################################################################
+  # AWS Injection (STS)
+  # Makes sure you have RBAC enabled
+  # Ref: https://aws.amazon.com/blogs/opensource/introducing-fine-grained-iam-roles-service-accounts/
+  ############################################################################################################
+  awsSTS:
+    # This is to be updated to 'true', otherwise will be ignored
+    enabled: false
+    # Your AWS ARN
+    # Update this values with your real value of your Amazon Role
+    arn: arn:aws:iam::195700002069:role/testops_s3
+
+############################################################################################################
+# Deploy related
+# Probes configuration block
+# This section configures liveness and readiness probes for the deployment.
+# Probes are to be disabled before 1st deployment and during release upgrades to avoid DB locks
+############################################################################################################
+probes:
+  # Enable or disable probes
+  enabled: true
+  # Startup probe configuration
+  startup:
+    # Define startup probe parameters
+    probe:
+      initialDelaySeconds: 10
+      failureThreshold: 30
+      periodSeconds: 10
+  # Liveness probe configuration
+  liveness:
+    # Define liveness probe parameters
+    probe:
+      periodSeconds: 30
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 10
+  # Readiness probe configuration
+  readiness:
+    # Define readiness probe parameters
+    probe:
+      periodSeconds: 10
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 30
+
+############################################################################################################
+# App related
+# Monitoring configuration block
+# Before enabling monitoring, make sure you have Prometheus & Prometheus Operator Installed
+# This section configures monitoring options for the deployment, including endpoint exposure and cache settings.
+############################################################################################################
+monitoring:
+  enabled: false
+  management:
+    # Endpoints to expose, e.g., for Prometheus, HealthChecks etc.
+    expose: health,info,prometheus,configprops
+    cacheTTL: 20s
+
+############################################################################################################
+# App related
+# Logging configuration
+# This section configures logging settings for the deployment, specifying base, security, and Hikari logging levels.
+# It's also possible to have certain modules logging differently from the set below, ask the support for the recommendations
+############################################################################################################
+logging:
+  # Base Logging Level Configuration
+  baseLogLevel: warn
+  # Security Logging Level Configuration
+  securityLogLevel: warn
+  # Hikari (related to the working with the database) Logging Level Configuration
+  hikariLogLevel: warn
+
+############################################################################################################
+# Deploy related
+# Network configuration block
+# This section defines the network settings for the deployment,
+# including Ingress, Istio Gateway, OpenShift Route, and TLS configuration.
+############################################################################################################
+network:
+  ############################################################################################################
+  # Either ingress or istio (not both) need to be enabled for the application to be accessible from the outside
+  # Ingress to route the traffic
+  ############################################################################################################
+  ingress:
+    enabled: false
+    className:
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+      nginx.ingress.kubernetes.io/proxy-body-size: "500m"
+  ############################################################################################################
+  # Prior to deployment, label Namespace with istio-injection=enabled to make Istio inject Envoy Sidecars
+  ############################################################################################################
+  istio:
+    # To be enabled (set to true) if you are using istio
+    enabled: false
+    gatewaySelector:
+      istio: ingressgateway
+    # makes TestOps accessible from Jira Plugin iFrame
+    # Update this with real Jira instance URL
+    domain_exceptions: "https://jira.your-domain.io https://jira.your-domain.com"
+  ############################################################################################################
+  # OpenShift Route, skip this if you aren't using OpenShift
+  ############################################################################################################
+  openShiftRoute:
+    enabled: false
+    annotations: {}
+    tls: {}
+  # TLS Settings
+  tls:
+    secureCookie: false
+    # to be set to 'true' if SSL is going to be used for your deployment
+    enabled: false
+    # Secret with SSL termination secrets.
+    secretName: testops-tls
+    hstsEnabled: false
+  # Important! We do not provide Certmanager itself, if you don't have one,
+  # install it from https://cert-manager.io/docs/installation/ and create a ClusterIssuer,
+  # and provide a Challenge type, e.g., acme http-01 or dns-01
+  certmanager:
+    # To be set to 'true' if a certification manager to be used for the deployment
+    enabled: false
+    # It is important where certificate is located depending on your Ingress/Istio Gateway
+    # IstioGateway require secrets with tls certs to be located in istio-system ns
+    namespace: istio-system
+    # As Let's Encrypt is not the only provider, you may use your own.
+    issuerName: letsencrypt-issuer
+    issuerGroup: cert-manager.io
+
+# hostAliases allows you to customize the /etc/hosts file for the Pods.
+# This is useful for overriding DNS resolution for specific hostnames.
+# Example:
+# hostAliases:
+#   - ip: "127.0.0.1"
+#     hostnames:
+#       - "example.local"
+#       - "test.local"
+#   - ip: "192.168.1.1"
+#     hostnames:
+#       - "internal.service"
+hostAliases: []
+
+# customContainers allows you to define additional containers to be added to the Pod.
+# This is useful for adding sidecar containers or custom functionality.
+# Example:
+# customContainers:
+#   - name: custom-sidecar
+#     image: busybox:1.28
+#     command:
+#       - sleep
+#     args:
+#       - "3600"
+#     resources:
+#       limits:
+#         cpu: "100m"
+#         memory: "128Mi"
+#       requests:
+#         cpu: "50m"
+#         memory: "64Mi"
+customContainers: []
+
+############################################################################################################
+# defaultRole allowed values are ROLE_GUEST, ROLE_USER, ROLE_ADMIN
+############################################################################################################
+auth:
+  # Available options system / saml2 / ldap / openid
+  primary: system
+  # Allowed roles: ROLE_ADMIN, ROLE_USER, ROLE_GUEST
+  defaultRole: ROLE_GUEST
+  ldap:
+    enabled: false
+    auth:
+      user: user
+      pass: pass
+    referral: follow
+    url: ldap://ldap.example.com:389
+    usernamesToLowercase: false
+    passwordAttribute: userPassword
+    user:
+      # dnPatterns must not be used with searchFilter
+      # sAMAccountName is an example, your LDAP parameter could be different
+      dnPatterns: ""
+      searchBase: dc=example,dc=com
+      # in your LDAP instead uid could be a different parameter
+      searchFilter: (&((objectClass=Person))(uid={0}))
+      # sAMAccountName={0}
+    # Syncs User Role by Group membership on any login
+    syncRoles: false
+    # in your LDAP it could be different
+    uidAttribute: uid
+    group:
+      searchBase: ou=qa,ou=Security Groups,dc=example,dc=com
+      # in your LDAP this search string will be different
+      searchFilter: (&(objectClass=Person)(uid={1}))
+      roleAttribute: cn
+    # Maps your LDAP groups on Groups
+    # groups are created by LDAP admin and will have different names
+    userGroupName: testops_users
+    adminGroupName: testops_admins
+  saml:
+    enabled: false
+    # The text ID for the SSO provider.
+    # Will be used in URLs and displayed on the login buttons.
+    # Don't use whitespaces and special characters
+    id: "testsaml"
+    entityId: https://<testops>/api/login/saml2/authenticate/{registrationId}
+    # Assertion Consumer Service Location
+    acsUrl: https://<your-domain>/api/login/saml2/sso/{registrationId}
+    identityProviderMetadataUri: https:///path/to/metadata.xml
+    syncRoles: false
+    firstNameAttribute: firstNameAttribute
+    lastNameAttribute: lastNameAttribute
+    emailAttribute: emailAttribute
+    groups:
+      groupRoleAttribute: groupRoleAttribute
+      roleUserGroups: roleUserGroups
+      roleAdminGroups: roleAdminGroups
+  openid:
+############################################################################################################
+# clientName - the name of current TestOps instance as a client of OpenID provider. Name there, paste here. Do not use spaces here.
+# clientId - the ID of current TestOps instance as a client of OpenID provider. Name there, paste here. Do not use spaces here.
+# providerName - the name of the OpenID provider. Do not use dashes, underscores or spaces. One word like Keycloak will do.
+# clientSecret - if your OpenId has authentication enabled for TestOps, use here the secret generated for TestOps
+# redirectUri - URI to which OpenID provider is to resident the user after the authentication
+# redirectUri must contain the name of the provider, i.e. if providerName: keycloak, then
+# redirectUri is to look link https://<your-domain>/login/oauth2/code/keycloak
+############################################################################################################
+    enabled: false
+    clientName: testops
+    clientId: testops
+    providerName: keycloak
+    clientSecret: your_client_secret
+    redirectUri: https://<your-domain>/login/oauth2/code/<add_providerName_here>
+    scope: openid,email,profile
+    authorizationGrantType: authorization_code
+    authorizationUri: http://<open_id_provider_url>/somepath/auth
+    jwksSetUri: http://<open_id_provider_url>/somepath/keys
+    tokenUri: http://<open_id_provider_url>/somepath/token
+    usernameAttribute: preferred_username
+    defaultRole: ROLE_GUEST
+    syncRoles: false
+    groupRoleAttribute: groupRoleAttribute
+    roleUserGroups: roleUserGroups
+    roleAdminGroups: roleAdminGroups
+# userinfoUri is optional and has to be left empty unless required
+# userinfoUri: http://<open_id_provider_url>/somepath/userinfo
+# issuerUri is optional and has to be left empty unless required
+# issuerUri: http://<open_id_provider_url>/issuer/something
+    userinfoUri:
+    issuerUri:
+# claim key with user name (first name), e.g., first_name
+    firstNameAttribute:
+# claim key with user surname (last name), e.g., last_name
+    lastNameAttribute:
+
+############################################################################################################
+# RBAC configuration block
+# This section configures Role-Based Access Control (RBAC) for the deployment, defining roles, and permissions.
+# Ref: https://kubernetes.io/docs/admin/authorization/rbac/
+############################################################################################################
+rbac:
+  enabled: true
+  serviceAccountName: testops-sa
+  serviceAccountCreate: true
+  rules:
+    - apiGroups:
+        - ''
+      resources:
+        - endpoints
+        - services
+        - pods
+        - configmaps
+        - secrets
+      verbs:
+        - get
+        - watch
+        - list
+
+############################################################################################################
+## Defines Security Context
+## 65534 started by a user with the lowest privileges
+## Openshift requires different range e.g. >= 1000620000
+############################################################################################################
+containerSecurityContext:
+  enabled: true
+  runAsUser: 65534
+
+############################################################################################################
+## Skip Kubernetes secret creation.
+## It is for cases when Secret is created and managed by external means, for example, using external-secrets
+## Do not enable unless you know what you're doing.
+############################################################################################################
+externalSecrets:
+  enabled: false
+  # Provide a custom name for externally-provided Secret
+  name: ""
+
+############################################################################################################
+# Application configuration
+############################################################################################################
+
+############################################################################################################
+# fine tuning
+############################################################################################################
+
+############################################################################################################
+# App related
+# group of parameters for fine-tuning of work with RabbitMQ
+# current values are optimal do not change these without consulting with the tech support https://help.qameta.io
+############################################################################################################
+maxConcurrency: 5
+parseConsumers: 10
+storeConsumers: 2
+
+############################################################################################################
+# App related
+# maxS3Concurrency defined number of threads used for the sending commands to S3 for managing the artifacts
+# current values is optimal do not change these without consulting with the tech support https://help.qameta.io
+# if your S3 is slow you can consider lowering the value, which may negatively affect the time of the test results processing
+############################################################################################################
+maxS3Concurrency: 200
+
+############################################################################################################
+# App related
+# messaging section defines the configuration for the messaging service used for internal data processing.
+# 2 types of messaging systems are supported:
+# 1) 'rabbitmq' - A robust, open-source message broker. It can be deployed as a sub-chart for a self-contained
+#    installation. This is the default option.
+# 2) 'sqs' - Amazon Simple Queue Service. Use this option for native integration with AWS infrastructure.
+#    This requires your cluster to have proper access to AWS SQS.
+############################################################################################################
+messaging:
+  # Defines the messaging system type.
+  # Options are:
+  # - rabbitmq
+  # - sqs
+  type: rabbitmq
+  ############################################################################################################
+  # SQS specific settings
+  # This block is only used when messaging.type is set to 'sqs'. It configures the connection details and
+  # consumer behavior for AWS SQS.
+  ############################################################################################################
+  sqs:
+    # The full endpoint URL for the SQS service.
+    # e.g., https://sqs.<region>.amazonaws.com
+    endpoint: https://sqs.us-east-1.api.aws
+    # The AWS region where the SQS queues are located.
+    region: us-east-1
+    ############################################################################################################
+    # Consumer settings for different queue types.
+    # These settings allow fine-tuning of performance and resource consumption for message processing.
+    ############################################################################################################
+    # Configuration for the 'parse' queue consumer, which handles initial processing of test results.
+    parse:
+      # Maximum number of messages to process concurrently.
+      maxConcurrentMessages: 10
+      # Maximum number of messages to retrieve in a single poll.
+      maxMessagesPerPoll: 10
+      # The duration that a received message is hidden from subsequent retrieve requests.
+      # Format: duration string (e.g., "10m", "1h", "30s").
+      visibilityTimeout: 10m
+    # Configuration for the 'store' queue consumer, which handles storing processed results.
+    store:
+      # Maximum number of messages to process concurrently.
+      maxConcurrentMessages: 10
+      # Maximum number of messages to retrieve in a single poll.
+      maxMessagesPerPoll: 10
+      # The duration that a received message is hidden from subsequent retrieve requests.
+      # Format: duration string (e.g., "10m", "1h", "30s").
+      visibilityTimeout: 10m
+    # Configuration for the 'storeComplete' queue consumer, which finalizes the result storage process.
+    storeComplete:
+      # Maximum number of messages to process concurrently.
+      maxConcurrentMessages: 10
+      # Maximum number of messages to retrieve in a single poll.
+      maxMessagesPerPoll: 10
+      # The duration that a received message is hidden from subsequent retrieve requests.
+      # Format: duration string (e.g., "10m", "1h", "30s").
+      visibilityTimeout: 10m
+    ############################################################################################################
+    # queuePrefix is prepended to all automatically generated SQS queue names.
+    ############################################################################################################
+    queuePrefix: testops
+    ############################################################################################################
+    # Allows providing explicit names for SQS queues, overriding the default generated names.
+    # If a value is left empty, a default name will be constructed using the queuePrefix and a standard suffix
+    # (e.g., "testops_allure_upload_process").
+    ############################################################################################################
+    queues: {}
+      # uploadProcess: ""
+      # uploadProcessDlq: ""
+      # uploadPostProcess: ""
+      # uploadPostProcessDlq: ""
+      # uploadCompleteProcess: ""
+      # integrationExportLaunch: ""
+      # systemCleanBlobStorage: ""
+      # systemDeadLetter: ""
+
+############################################################################################################
+# Software required for Testops to work
+# - RabbitMQ (in case you have no AWS SQS) - We recommend deploying as dedicated server.
+# - Redis - can be deployed using this chart
+# - PostgreSQL ver 15. Must be deployed as dedicated DB Server in a production system.
+# - minio (in case you have no AWS S3 or similar solution). We recommend deploying as dedicated server.
+############################################################################################################
+
+############################################################################################################
+# RabbitMQ is the message queue manager ensuring the async data processing on Testops side.
+# RabbitMQ stores tasks for the TestOps service to process.
+# For the production deployment, it's recommended to have RabbitMQ installed as a stand-alone solution out of
+# this very deployment
+############################################################################################################
+rabbitmq:
+  #########################################################################################################
+  # deployByChart
+  # If set to 'true', then Helm chart will deploy RabbitMQ, and 'external' values will be ignored
+  # Update to 'false' (recommended) if you have RabbitMQ deployed in your infrastructure
+  # If deployed using this chart, RabbitMQ is managed by the original Helm chart provided by Bitnami
+  # for the reference, please visit: https://github.com/bitnami/charts/tree/main/bitnami/rabbitmq
+  #########################################################################################################
+  enabled: true
+  image:
+    repository: bitnamilegacy/rabbitmq
+  hosts: amqps://mq.example.com:5672
+  vhost: "/"
+  # username and password to connect to RabbitMQ server as per the deployed config
+  auth:
+    username: testops
+    password: testops
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+############################################################################################################
+# Redis stores users' sessions data. Mandatory to start Testops
+# Generally service does not require any persistence.
+# If deployed via this chart, Redis is managed by the original Helm chart provided by Bitnami
+# Аor the reference, please visit: https://github.com/bitnami/charts/blob/main/bitnami/redis/README.md
+############################################################################################################
+redis:
+  # Set to 'false' if you have Redis deployed in your infrastructure, and you are allowed to use it with TestOps
+  enabled: true
+  image:
+    repository: bitnamilegacy/redis
+  # if deployByChart is false, then the settings below are required
+  host: redis.example.com
+  port: 6379
+  database: 0
+  architecture: standalone
+  # You can also control a Redis key prefix
+  namespace: ""
+  auth:
+    password: testops
+  # depends on your redis deployment
+  sentinel:
+    enabled: false
+    masterSet: big_master
+    nodes: []
+    podLabels:
+      app: redis
+      version: v1
+  master:
+    kind: Deployment
+    service:
+      annotations: {}
+    persistence:
+      enabled: false
+      size: 1Gi
+
+############################################################################################################
+# minio is an AWS SDK S3 compatible solution you can use as a substitution for AWS S3
+# for highly loaded deployment it's recommended to use industrial S3 like solutions
+# it's recommended to deploy S3 separately from current deployment
+# it's highly recommended to use a dedicated minio server for Testops otherwise other tenants might start suffering
+# it's highly recommended disabling versioning for S3
+############################################################################################################
+minio:
+  enabled: false
+  image:
+    repository: bitnamilegacy/minio
+ ############################################################################################################
+  # The parameters below are applied only if enabled is set to true
+  # if deployed with the current chart (enabled: true above), the Minio deployment is managed by the original
+  # Helm chart provided by Bitnami
+  # for the reference, please visit: https://github.com/bitnami/charts/tree/main/bitnami/minio
+  ############################################################################################################
+  auth:
+    # Access Key here
+    rootUser: WBuetMuTAMAB4M78NG3gQ4dCFJr3SSmU
+    # Secret Key here
+    rootPassword: m9F4qupW4ucKBDQBWr4rwQLSAeC6FE2L
+  service:
+    ports:
+      api: 9000
+  defaultBuckets: testops-testops
+  defaultRegion: testops-0
+
+############################################################################################################
+# Make life easier for customers with a huge amount of data and/or high-load rate (mostly for widgets and analytics pages)
+# Max ttl is 24 hours (will be verified on the backend side)
+############################################################################################################
+widgetsCache:
+  enabled: false
+  byDefault: 30m
+# The section is related to common widgets. Only names provided above are allowed
+  widgets:
+    automationTrend: 30m
+    trComplexTrend: 30m
+    trStatisticTrend: 30m
+    launchDurationHistogram: 30m
+    analyticPieChart: 30m
+    projectMetricTrend: 30m
+    tcLastResult: 30m
+# Section may contain an id: ttl pairs where id - is a custom widget id
+  widgetsCustom:
+    -1: 30m
+
+############################################################################################################
+# Vault integration configuration block
+# This section configures integration with HashiCorp Vault for secret management.
+# Requires Vault CSI https://developer.hashicorp.com/vault/tutorials/kubernetes/kubernetes-secret-store-driver#secretkey
+############################################################################################################
+vault:
+  # Enable or Disable Vault Integration
+  enabled: false
+  # Vault Secret Configuration
+  secretName: vault-secret
+  # Vault Server URL
+  url: "http://vault.vault.svc.cluster.local:8200"
+  # TLS Verification Skip Configuration
+  skipTLSVerify: false
+  # Path where the k8s authentication backend is mounted in Vault
+  kubernetesMountPath: my-cluster
+  roleName: testops
+  # Path Configuration for Retrieving Secrets
+  secretPath: secret/data/testops-credentials
+  smtpPath: secret/data/smtp-credentials
+  # Mount Path in the Deployment for Secrets
+  mountPath: /mnt/secrets-store
+
+############################################################################################################
+# parameters define whether users can or cannot register via UI without involving administrator
+# it's highly recommended to turn off both options (set to false)
+# turning these on could lead to uncontrolled license consumption and potential security risk
+############################################################################################################
+registrationEnabled: false
+autoApprove: false

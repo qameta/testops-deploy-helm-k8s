@@ -1,0 +1,55 @@
+{{- if .Values.network.istio.enabled }}
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: {{ template "testops.fullname" . }}
+spec:
+  selector:
+{{- with .Values.network.istio.gatewaySelector }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+  servers:
+    - hosts:
+        - {{ .Values.instanceFqdn }}
+      port:
+        number: 80
+        name: http
+        protocol: HTTP
+{{- if .Values.network.tls.enabled }}
+      tls:
+        httpsRedirect: true
+    - hosts:
+        - {{ .Values.instanceFqdn }}
+      port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE
+        credentialName: {{ .Values.network.tls.secretName }}
+{{- end }}
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ template "testops.fullname" . }}
+spec:
+  gateways:
+    - {{ template "testops.fullname" . }}
+  hosts:
+    - {{ .Values.instanceFqdn }}
+  http:
+    - route:
+        - destination:
+            host: {{ template "testops.fullname" . }}
+            port:
+              number: {{ .Values.port }}
+          headers:
+            response:
+              add:
+                Content-Security-Policy: "frame-ancestors 'self' {{ .Values.network.istio.domain_exceptions }}"
+{{- if .Values.network.tls.hstsEnabled }}
+                Strict-Transport-Security: "max-age=63072000; includeSubDomains; preload;"
+{{- end }}
+{{- end }}

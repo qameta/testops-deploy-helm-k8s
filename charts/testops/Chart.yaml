@@ -1,0 +1,23 @@
+apiVersion: v2
+name: testops
+version: 5.22.0
+appVersion: 25.3.2
+kubeVersion: '>= 1.20.0-0'
+
+dependencies:
+  - name: rabbitmq
+    version: 12.14.0
+    repository: oci://registry-1.docker.io/bitnamicharts
+    condition: rabbitmq.enabled
+  - name: postgresql
+    version: 12.12.10
+    repository: oci://registry-1.docker.io/bitnamicharts
+    condition: postgresql.enabled
+  - name: redis
+    version: 18.16.1
+    repository: oci://registry-1.docker.io/bitnamicharts
+    condition: redis.enabled
+  - name: minio
+    version: 13.6.4
+    repository: oci://registry-1.docker.io/bitnamicharts
+    condition: minio.enabled

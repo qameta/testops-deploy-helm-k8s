@@ -1,0 +1,159 @@
+{{- if .Values.vault.enabled }}
+---
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: {{ template "testops.fullname" . }}
+spec:
+  provider: vault
+  secretObjects:
+    - secretName: {{ .Values.vault.secretName }}
+      type: Opaque
+      data:
+        - objectName: "cryptoPass"
+          key: "cryptoPass"
+        - objectName: "jwtSecret"
+          key: "jwtSecret"
+        - objectName: "username"
+          key: "username"
+        - objectName: "password"
+          key: "password"
+        - objectName: "licenseKey"
+          key: "licenseKey"
+        - objectName: "testopsDbUser"
+          key: "testopsDbUser"
+        - objectName: "testopsDbPass"
+          key: "testopsDbPass"
+{{- if .Values.datasources.analyticsDatasource.enabled }}
+        - objectName: "analyticsDbUser"
+          key: "analyticsDbUser"
+        - objectName: "analyticsDbPass"
+          key: "analyticsDbPass"
+{{- end }}
+        - objectName: "redisPass"
+          key: "redisPass"
+        - objectName: "rabbitUser"
+          key: "rabbitUser"
+        - objectName: "rabbitPass"
+          key: "rabbitPass"
+{{- if not .Values.storage.awsSTS.enabled }}
+        - objectName: "s3AccessKey"
+          key: "s3AccessKey"
+        - objectName: "s3SecretKey"
+          key: "s3SecretKey"
+{{- end }}
+        - objectName: "smtpUsername"
+          key: "smtpUsername"
+        - objectName: "smtpPassword"
+          key: "smtpPassword"
+{{- if .Values.auth.ldap.enabled }}
+        - objectName: "ldapUser"
+          key: "ldapUser"
+        - objectName: "ldapPass"
+          key: "ldapPass"
+{{- end }}
+{{- if .Values.auth.openid.enabled }}
+        - objectName: "openIdClientSecret"
+          key: "openIdClientSecret"
+        - objectName: "openIdClientId"
+          key: "openIdClientId"
+{{- end }}
+  parameters:
+{{- if .Values.vault.url }}
+    vaultAddress: {{ .Values.vault.url }}
+    vaultSkipTLSVerify: {{ .Values.vault.skipTLSVerify | quote }}
+{{- end }}
+{{- if .Values.vault.kubernetesMountPath }}
+    vaultKubernetesMountPath: {{ .Values.vault.kubernetesMountPath }}
+{{- end }}
+    roleName: "{{ .Values.vault.roleName }}"
+    objects: |
+      - objectName: "cryptoPass"
+        secretPath: "{{ .Values.vault.secretPath }}"
+        secretKey: "crypto_pass"
+
+      - objectName: "jwtSecret"
+        secretPath: "{{ .Values.vault.secretPath }}"
+        secretKey: "jwt_secret"
+
+      - objectName: "username"
+        secretPath: "{{ .Values.vault.secretPath }}"
+        secretKey: "username"
+
+      - objectName: "password"
+        secretPath: "{{ .Values.vault.secretPath }}"
+        secretKey: "password"
+
+      - objectName: "licenseKey"
+        secretPath: "{{ .Values.vault.secretPath }}"
+        secretKey: "licence"
+
+      - objectName: "testopsDbUser"
+        secretPath: "{{ .Values.vault.secretPath }}"
+        secretKey: "db_testops_user"
+
+      - objectName: "testopsDbPass"
+        secretPath: "{{ .Values.vault.secretPath }}"
+        secretKey: "db_testops_pass"
+
+{{- if .Values.datasources.analyticsDatasource.enabled }}
+      - objectName: "analyticsDbUser"
+        secretPath: "{{ .Values.vault.secretPath }}"
+        secretKey: "db_analytics_user"
+
+      - objectName: "analyticsDbPass"
+        secretPath: "{{ .Values.vault.secretPath }}"
+        secretKey: "db_analytics_pass"
+{{- end }}
+
+      - objectName: "redisPass"
+        secretPath: "{{ .Values.vault.secretPath }}"
+        secretKey: "redis_pass"
+
+      - objectName: "rabbitUser"
+        secretPath: "{{ .Values.vault.secretPath }}"
+        secretKey: "rabbit_user"
+
+      - objectName: "rabbitPass"
+        secretPath: "{{ .Values.vault.secretPath }}"
+        secretKey: "rabbit_pass"
+
+{{- if not .Values.storage.awsSTS.enabled }}
+      - objectName: "s3AccessKey"
+        secretPath: "{{ .Values.vault.secretPath }}"
+        secretKey: "s3_access_key"
+
+      - objectName: "s3SecretKey"
+        secretPath: "{{ .Values.vault.secretPath }}"
+        secretKey: "s3_secret_key"
+{{- end }}
+
+      - objectName: "smtpUsername"
+        secretPath: "{{ .Values.vault.smtpPath }}"
+        secretKey: "username"
+
+      - objectName: "smtpPassword"
+        secretPath: "{{ .Values.vault.smtpPath }}"
+        secretKey: "password"
+
+{{- if .Values.auth.ldap.enabled }}
+      - objectName: "ldapUser"
+        secretPath: "{{ .Values.vault.secretPath }}"
+        secretKey: "ldap_user"
+
+      - objectName: "ldapPass"
+        secretPath: "{{ .Values.vault.secretPath }}"
+        secretKey: "ldap_pass"
+{{- end }}
+
+{{- if .Values.auth.openid.enabled }}
+      - objectName: "openIdClientSecret"
+        secretPath: "{{ .Values.vault.secretPath }}"
+        secretKey: "openid_client_secret"
+
+      - objectName: "openIdClientId"
+        secretPath: "{{ .Values.vault.secretPath }}"
+        secretKey: "openid_client_id"
+{{- end }}
+
+{{- end }}

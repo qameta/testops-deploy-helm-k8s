@@ -1,0 +1,22 @@
+{{- if .Values.network.openShiftRoute.enabled }}
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ template "testops.fullname" . }}
+{{- if .Values.network.openShiftRoute.annotations }}
+  annotations:
+{{ toYaml .Values.network.openShiftRoute.annotations | indent 4 }}
+{{- end }}
+spec:
+  host: {{ .Values.instanceFqdn }}
+  port:
+    targetPort: {{ .Values.port }}
+  to:
+    kind: Service
+    name: {{ template "testops.fullname" . }}
+{{- if .Values.network.openShiftRoute.tls }}
+  tls:
+{{ toYaml .Values.network.openShiftRoute.tls | indent 4 }}
+{{- end}}
+{{- end }}
