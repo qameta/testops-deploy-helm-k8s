@@ -9,6 +9,10 @@ Entries are ordered by priority:
 3. `[ENHANCEMENT]` Improvements to existing features
 4. `[BUGFIX]` Fixes for defects
 
+## 5.25.1
+
+- [BUGFIX] Added SQS secrets to secret.yaml and vault.yaml
+
 ## 5.25.0
 
 - [FEATURE] Added support of AWS SQS messaging service.

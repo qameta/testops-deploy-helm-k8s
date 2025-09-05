@@ -780,6 +780,27 @@ messaging:
     # The AWS region where the SQS queues are located.
     region: us-east-1
     ############################################################################################################
+    # queuePrefix is prepended to all automatically generated SQS queue names.
+    ############################################################################################################
+    queuePrefix: testops
+    ############################################################################################################
+    # Allows providing explicit names for SQS queues, overriding the default generated names.
+    # If a value is left empty, a default name will be constructed using the queuePrefix and a standard suffix
+    # (e.g., "testops_allure_upload_process").
+    ############################################################################################################
+    queues: {}
+      # uploadProcess: ""
+      # uploadProcessDlq: ""
+      # uploadPostProcess: ""
+      # uploadPostProcessDlq: ""
+      # uploadCompleteProcess: ""
+      # integrationExportLaunch: ""
+      # systemCleanBlobStorage: ""
+      # systemDeadLetter: ""
+    # If you run Testops in AWS EKS you don't need stating accessKey & secretKey
+    accessKey: WBuetMuTAMAB4M78NG3gQ4dCFJr3SSmU
+    secretKey: m9F4qupW4ucKBDQBWr4rwQLSAeC6FE2L
+    ############################################################################################################
     # Consumer settings for different queue types.
     # These settings allow fine-tuning of performance and resource consumption for message processing.
     ############################################################################################################
@@ -810,24 +831,6 @@ messaging:
       # The duration that a received message is hidden from subsequent retrieve requests.
       # Format: duration string (e.g., "10m", "1h", "30s").
       visibilityTimeout: 10m
-    ############################################################################################################
-    # queuePrefix is prepended to all automatically generated SQS queue names.
-    ############################################################################################################
-    queuePrefix: testops
-    ############################################################################################################
-    # Allows providing explicit names for SQS queues, overriding the default generated names.
-    # If a value is left empty, a default name will be constructed using the queuePrefix and a standard suffix
-    # (e.g., "testops_allure_upload_process").
-    ############################################################################################################
-    queues: {}
-      # uploadProcess: ""
-      # uploadProcessDlq: ""
-      # uploadPostProcess: ""
-      # uploadPostProcessDlq: ""
-      # uploadCompleteProcess: ""
-      # integrationExportLaunch: ""
-      # systemCleanBlobStorage: ""
-      # systemDeadLetter: ""
 
 ############################################################################################################
 # Software required for Testops to work

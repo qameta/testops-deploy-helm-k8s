@@ -32,15 +32,23 @@ spec:
 {{- end }}
         - objectName: "redisPass"
           key: "redisPass"
+{{- if eq .Values.messaging.type "rabbitmq" }}
         - objectName: "rabbitUser"
           key: "rabbitUser"
         - objectName: "rabbitPass"
           key: "rabbitPass"
+{{- end }}
 {{- if not .Values.storage.awsSTS.enabled }}
         - objectName: "s3AccessKey"
           key: "s3AccessKey"
         - objectName: "s3SecretKey"
           key: "s3SecretKey"
+{{- if eq .Values.messaging.type "sqs" }}
+        - objectName: "sqsAccessKey"
+          key: "sqsAccessKey"
+        - objectName: "sqsSecretKey"
+          key: "sqsSecretKey"
+{{- end }}
 {{- end }}
         - objectName: "smtpUsername"
           key: "smtpUsername"
@@ -110,6 +118,7 @@ spec:
         secretPath: "{{ .Values.vault.secretPath }}"
         secretKey: "redis_pass"
 
+{{- if eq .Values.messaging.type "rabbitmq" }}
       - objectName: "rabbitUser"
         secretPath: "{{ .Values.vault.secretPath }}"
         secretKey: "rabbit_user"
@@ -117,6 +126,7 @@ spec:
       - objectName: "rabbitPass"
         secretPath: "{{ .Values.vault.secretPath }}"
         secretKey: "rabbit_pass"
+{{- end }}
 
 {{- if not .Values.storage.awsSTS.enabled }}
       - objectName: "s3AccessKey"
@@ -126,6 +136,15 @@ spec:
       - objectName: "s3SecretKey"
         secretPath: "{{ .Values.vault.secretPath }}"
         secretKey: "s3_secret_key"
+{{- if eq .Values.messaging.type "sqs" }}
+      - objectName: "sqsAccessKey"
+        secretPath: "{{ .Values.vault.secretPath }}"
+        secretKey: "sqs_access_key"
+
+      - objectName: "sqsSecretKey"
+        secretPath: "{{ .Values.vault.secretPath }}"
+        secretKey: "sqs_secret_key"
+{{- end }}
 {{- end }}
 
       - objectName: "smtpUsername"
