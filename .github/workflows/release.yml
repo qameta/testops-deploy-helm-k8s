@@ -8,9 +8,12 @@ jobs:
   release:
     runs-on: ubuntu-latest
     environment: master
+    env:
+      REPO_NAME: testops
+      CHART_NAME: testops
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -28,12 +31,14 @@ jobs:
           fi
           echo "CHART_VERSION=$CHART_VERSION" >> $GITHUB_ENV
 
-      - name: Helm publish
-        uses: qameta/artifactory-publisher@v1
+      - uses: azure/setup-helm@v4
         with:
-          endpoint: https://dl.qameta.io/artifactory/helm/
-          username: ${{ secrets.ARTIFACTORY_USER }}
-          password: ${{ secrets.ARTIFACTORY_PASS }}
-          repoName: testops
-          chart: charts/testops
-          version: "${CHART_VERSION}"
+          version: v3.14.3
+
+      - name: Helm publish
+        run: |
+          echo "Packaging chart charts/${{ env.CHART_NAME }}"
+          helm dependency update charts/${{ env.CHART_NAME }}
+          helm package charts/${{ env.CHART_NAME }}
+          echo "Publishing Helm Chart"
+          curl --fail -u ${{ secrets.ARTIFACTORY_USER }}:${{ secrets.ARTIFACTORY_PASS }} -T ${{ env.CHART_NAME }}-${CHART_VERSION}.tgz https://${{ vars.CHART_REGISTRY }}/artifactory/helm/${{ env.REPO_NAME }}/${{ env.CHART_NAME }}-${CHART_VERSION}.tgz
