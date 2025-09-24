@@ -11,7 +11,7 @@ Entries are ordered by priority:
 
 ## 5.25.3
 
-- [ENHANCEMENT] Adds support of `S3_SHARDED` for S3.
+- [ENHANCEMENT] Adds support of `S3_SHARDED` type for S3.
 
 ## 5.25.2
 
