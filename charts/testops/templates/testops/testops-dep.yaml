@@ -129,7 +129,7 @@ spec:
 {{- include "renderOPENIDEnvs" . | indent 10 }}
 {{- end }}
 
-{{- if or (eq .Values.storage.type "S3") (eq .Values.storage.type "S3_ASYNC") }}
+{{- if or (eq .Values.storage.type "S3") (eq .Values.storage.type "S3_ASYNC") (eq .Values.storage.type "S3_SHARDED") }}
 {{- include "renderS3Envs" . | indent 10 }}
 {{- end }}
 

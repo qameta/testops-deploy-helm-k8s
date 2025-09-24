@@ -18,7 +18,7 @@
 # for version upgrades, select the desired version of the application and the most recent chart
 # minimal version of Testops supported by this chart is 25.3.2
 ############################################################################################################
-version: 25.3.2
+version: 25.3.3
 
 ############################################################################################################
 # Deploy related
