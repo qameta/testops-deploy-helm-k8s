@@ -9,6 +9,10 @@ Entries are ordered by priority:
 3. `[ENHANCEMENT]` Improvements to existing features
 4. `[BUGFIX]` Fixes for defects
 
+## 5.25.3
+
+- [ENHANCEMENT] Adds support of `S3_SHARDED` type for S3.
+
 ## 5.25.2
 
 - [BUGFIX] Added SQS secrets to secret.yaml and vault.yaml
