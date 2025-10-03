@@ -521,11 +521,11 @@
   - name: ALLURE_REDIS_SESSIONTTL
     value: {{ .Values.inactiveUserSessionDuration | quote }}
 {{- if .Values.redis.sentinel.enabled }}
-  - name: SPRING_REDIS_SENTINEL_NODES
-    value: "{{ .Values.redis.sentinel.nodes }}"
-  - name: SPRING_REDIS_SENTINEL_MASTER
+  - name: SPRING_DATA_REDIS_SENTINEL_NODES
+    value: {{ join "," .Values.redis.sentinel.nodes | quote }}
+  - name: SPRING_DATA_REDIS_SENTINEL_MASTER
     value: "{{ .Values.redis.sentinel.masterSet }}"
-  - name: SPRING_REDIS_SENTINEL_PASSWORD
+  - name: SPRING_DATA_REDIS_SENTINEL_PASSWORD
     valueFrom:
       secretKeyRef:
         name: {{ template "testops.secret.name" . }}

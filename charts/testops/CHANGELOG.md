@@ -9,6 +9,10 @@ Entries are ordered by priority:
 3. `[ENHANCEMENT]` Improvements to existing features
 4. `[BUGFIX]` Fixes for defects
 
+## 5.25.4
+
+- [BUGFIX] Fixed rendering of `sentinel.nodes` property in Redis configuration.
+
 ## 5.25.3
 
 - [ENHANCEMENT] Adds support of `S3_SHARDED` type for S3.
