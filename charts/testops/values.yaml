@@ -887,14 +887,15 @@ redis:
   # You can also control a Redis key prefix
   namespace: ""
   auth:
-    password: testops
+    password: RedisDatabasePasswordHere
   # depends on your redis deployment
+  # Sentinel: https://redis.io/docs/latest/operate/oss_and_stack/management/sentinel/
   sentinel:
     enabled: false
     masterSet: big_master
     nodes: []
     auth:
-      password: testops
+      password: RedisSentinelPasswordHere
     podLabels:
       app: redis
       version: v1
