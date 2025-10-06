@@ -32,6 +32,10 @@ spec:
 {{- end }}
         - objectName: "redisPass"
           key: "redisPass"
+{{- if .Values.redis.sentinel.enabled }}
+        - objectName: "redisSentinelPass"
+          key: "redisSentinelPass"
+{{- end }}
 {{- if eq .Values.messaging.type "rabbitmq" }}
         - objectName: "rabbitUser"
           key: "rabbitUser"
@@ -117,6 +121,12 @@ spec:
       - objectName: "redisPass"
         secretPath: "{{ .Values.vault.secretPath }}"
         secretKey: "redis_pass"
+
+{{- if .Values.redis.sentinel.enabled }}
+      - objectName: "redisSentinelPass"
+        secretPath: "{{ .Values.vault.secretPath }}"
+        secretKey: "redis_sentinel_pass"
+{{- end }}
 
 {{- if eq .Values.messaging.type "rabbitmq" }}
       - objectName: "rabbitUser"

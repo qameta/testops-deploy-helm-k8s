@@ -893,6 +893,8 @@ redis:
     enabled: false
     masterSet: big_master
     nodes: []
+    auth:
+      password: testops
     podLabels:
       app: redis
       version: v1
