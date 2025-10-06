@@ -886,6 +886,7 @@ redis:
   architecture: standalone
   # You can also control a Redis key prefix
   namespace: ""
+  # Redis database password, must be always set
   auth:
     password: RedisDatabasePasswordHere
   # depends on your redis deployment
@@ -894,6 +895,7 @@ redis:
     enabled: false
     masterSet: big_master
     nodes: []
+  # Sentinel password can differ from the Redis database password
     auth:
       password: RedisSentinelPasswordHere
     podLabels:
