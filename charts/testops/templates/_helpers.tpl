@@ -529,12 +529,13 @@
     valueFrom:
       secretKeyRef:
         name: {{ template "testops.secret.name" . }}
-        key: "redisPass"
+        key: "redisSentinelPass"
 {{- else }}
   - name: SPRING_DATA_REDIS_HOST
     value: "{{ template "testops.redis.fullname" . }}"
   - name: SPRING_DATA_REDIS_PORT
     value: "{{ .Values.redis.port }}"
+{{- end }}
   - name: SPRING_DATA_REDIS_DATABASE
     value: "{{ .Values.redis.database }}"
   - name: SPRING_DATA_REDIS_PASSWORD
@@ -542,7 +543,6 @@
       secretKeyRef:
         name: {{ template "testops.secret.name" . }}
         key: "redisPass"
-{{- end }}
 {{- if .Values.redis.namespace }}
   - name: ALLURE_REDIS_NAMESPACE
     value: "{{ .Values.redis.namespace }}"

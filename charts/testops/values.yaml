@@ -18,7 +18,7 @@
 # for version upgrades, select the desired version of the application and the most recent chart
 # minimal version of Testops supported by this chart is 25.3.2
 ############################################################################################################
-version: 25.3.3
+version: 25.3.4
 
 ############################################################################################################
 # Deploy related
@@ -886,13 +886,18 @@ redis:
   architecture: standalone
   # You can also control a Redis key prefix
   namespace: ""
+  # Redis database password, must be always set
   auth:
-    password: testops
+    password: RedisDatabasePasswordHere
   # depends on your redis deployment
+  # Sentinel: https://redis.io/docs/latest/operate/oss_and_stack/management/sentinel/
   sentinel:
     enabled: false
     masterSet: big_master
     nodes: []
+  # Sentinel password can differ from the Redis database password
+    auth:
+      password: RedisSentinelPasswordHere
     podLabels:
       app: redis
       version: v1
