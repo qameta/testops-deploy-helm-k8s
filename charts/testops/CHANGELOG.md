@@ -9,6 +9,10 @@ Entries are ordered by priority:
 3. `[ENHANCEMENT]` Improvements to existing features
 4. `[BUGFIX]` Fixes for defects
 
+## 5.25.6
+
+- [ENHANCEMENT] Added possibility to disable oidc token ttl control.
+
 ## 5.25.5
 
 - [BUGFIX] Added a dedicated sentinel password in Redis configuration.

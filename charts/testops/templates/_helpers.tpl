@@ -313,6 +313,10 @@
   - name: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_{{ .Values.auth.openid.providerName | upper }}_ISSUERURI
     value: {{ .Values.auth.openid.issuerUri }}
 {{- end }}
+{{- if .Values.auth.openid.ignoreOpenIDSessionDurationControl }}
+  - name: ALLURE_LOGIN_OPENID_REFRESHTOKEN
+    value: "false"
+{{- end }}
 {{- if .Values.auth.openid.firstNameAttribute }}
   - name: ALLURE_LOGIN_OPENID_FIRSTNAMEATTRIBUTE
     value: {{ .Values.auth.openid.firstNameAttribute }}

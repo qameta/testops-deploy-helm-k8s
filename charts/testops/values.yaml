@@ -669,6 +669,7 @@ auth:
     authorizationUri: http://<open_id_provider_url>/somepath/auth
     jwksSetUri: http://<open_id_provider_url>/somepath/keys
     tokenUri: http://<open_id_provider_url>/somepath/token
+    ignoreOpenIDSessionDurationControl: false
     usernameAttribute: preferred_username
     defaultRole: ROLE_GUEST
     syncRoles: false
