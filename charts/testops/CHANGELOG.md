@@ -13,8 +13,8 @@ Entries are ordered by priority:
 
 - [ENHANCEMENT] Added possibility to disable OpenID token TTL control via `ignoreOpenIDSessionDurationControl`
   - `ignoreOpenIDSessionDurationControl`
-    - if set to `false`, then the idle user session TTL will be controlled by OpenID IdP token ttl control.
-    - if set to `true`, then idle user session TTL will be controlled by `inactiveUserSessionDuration` parameter
+    - if set to `false`, then the idle user session TTL will be controlled by OpenID IdP token TTL control.
+    - if set to `true`, then idle user session TTL will be controlled by `inactiveUserSessionDuration` parameter.
 
 ## 5.25.5
 
