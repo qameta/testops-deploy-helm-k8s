@@ -657,7 +657,7 @@ auth:
 # redirectUri - URI to which OpenID provider is to resident the user after the authentication
 # redirectUri must contain the name of the provider, i.e. if providerName: keycloak, then
 # redirectUri is to look link https://<your-domain>/login/oauth2/code/keycloak
-# ignoreOpenIDSessionDurationControl - if set to false, the OpenID IdP idle session TTL control will be used, if set to true, then idle session TTL will be controlled by inactiveUserSessionDuration parameter.
+# ignoreOpenIDSessionDurationControl - if set to false, the OpenID IdP idle session TTL control will be used; if set to true, then idle session TTL will be controlled by inactiveUserSessionDuration parameter.
 ############################################################################################################
     enabled: false
     clientName: testops
