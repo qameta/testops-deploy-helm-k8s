@@ -10,7 +10,7 @@ metadata:
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
 {{- if .Values.annotations.service }}
-    annotations:
+  annotations:
 {{- range $key, $value := .Values.annotations.service }}
         {{ $key }}: {{ $value | quote }}
 {{- end }}

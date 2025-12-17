@@ -9,6 +9,10 @@ Entries are ordered by priority:
 3. `[ENHANCEMENT]` Improvements to existing features
 4. `[BUGFIX]` Fixes for defects
 
+## 5.25.7
+
+- [BUGFIX] Fixed a defect in testops-svc template that prevented the chart from beeing deployed.
+
 ## 5.25.6
 
 - [ENHANCEMENT] Added possibility to disable OpenID token TTL control via `ignoreOpenIDSessionDurationControl`
