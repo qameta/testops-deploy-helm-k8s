@@ -12,7 +12,7 @@ metadata:
 {{- if .Values.annotations.service }}
   annotations:
 {{- range $key, $value := .Values.annotations.service }}
-        {{ $key }}: {{ $value | quote }}
+    {{ $key }}: {{ $value | quote }}
 {{- end }}
 {{- end }}
 spec:
