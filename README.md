@@ -53,7 +53,7 @@ helm upgrade --install testops qameta/testops \
 1. update values.yaml `version` to the most recent release (see https://docs.qameta.io/allure-testops/release-notes/)
 
 ```yaml
-version: 25.3.2
+version: 25.4.1
 ```
 
 2. Run `helm repo update` to get the most recent helm chart data, and then `helm upgrade`
