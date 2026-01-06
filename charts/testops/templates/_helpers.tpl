@@ -484,21 +484,21 @@
         key: "sqsSecretKey"
 {{- end }}
   - name: ALLURE_MESSAGING_SQS_PARSE_MAXCONCURRENTMESSAGES
-    value: {{ .Values.messaging.sqs.parse.maxConcurrentMessages }}
+    value: {{ .Values.messaging.sqs.parse.maxConcurrentMessages | quote }}
   - name: ALLURE_MESSAGING_SQS_PARSE_MAXMESSAGESPERPOLL
-    value: {{ .Values.messaging.sqs.parse.maxMessagesPerPoll }}
+    value: {{ .Values.messaging.sqs.parse.maxMessagesPerPoll | quote }}
   - name: ALLURE_MESSAGING_SQS_PARSE_VISIBILITYTIMEOUT
     value: {{ .Values.messaging.sqs.parse.visibilityTimeout }}
   - name: ALLURE_MESSAGING_SQS_STORE_MAXCONCURRENTMESSAGES
-    value: {{ .Values.messaging.sqs.store.maxConcurrentMessages }}
+    value: {{ .Values.messaging.sqs.store.maxConcurrentMessages | quote }}
   - name: ALLURE_MESSAGING_SQS_STORE_MAXMESSAGESPERPOLL
-    value: {{ .Values.messaging.sqs.store.maxMessagesPerPoll }}
+    value: {{ .Values.messaging.sqs.store.maxMessagesPerPoll | quote }}
   - name: ALLURE_MESSAGING_SQS_STORE_VISIBILITYTIMEOUT
     value: {{ .Values.messaging.sqs.store.visibilityTimeout }}
   - name: ALLURE_MESSAGING_SQS_STORECOMPLETE_MAXCONCURRENTMESSAGES
-    value: {{ .Values.messaging.sqs.storeComplete.maxConcurrentMessages }}
+    value: {{ .Values.messaging.sqs.storeComplete.maxConcurrentMessages | quote }}
   - name: ALLURE_MESSAGING_SQS_STORECOMPLETE_MAXMESSAGESPERPOLL
-    value: {{ .Values.messaging.sqs.storeComplete.maxMessagesPerPoll }}
+    value: {{ .Values.messaging.sqs.storeComplete.maxMessagesPerPoll | quote }}
   - name: ALLURE_MESSAGING_SQS_STORECOMPLETE_VISIBILITYTIMEOUT
     value: {{ .Values.messaging.sqs.storeComplete.visibilityTimeout }}
   - name: ALLURE_MESSAGING_SQS_UPLOAD_PROCESS
