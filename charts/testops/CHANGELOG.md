@@ -8,14 +8,16 @@ Entries are ordered by priority:
 2. `[FEATURE]` New functionalities or configurations
 3. `[ENHANCEMENT]` Improvements to existing features
 4. `[BUGFIX]` Fixes for defects
+5. `[DOCS]` Update of the documentation in `values.yaml`
 
 ## 5.25.8
 
-- [BUGFIX] Fixed a defect with quoting of sqs variables that prevented the chart from beeing deployed.
+- [BUGFIX] Fixed a defect with quoting of AWS SQS variables that prevented the chart from being deployed.
+- [DOCS] Adds comments on the usage of AWS SQS, IAM roles and standard names of the queues an end user needs to create on AWS SQS side prior to using SQS with Allure TestOps.
 
 ## 5.25.7
 
-- [BUGFIX] Fixed a defect in testops-svc template that prevented the chart from beeing deployed.
+- [BUGFIX] Fixed a defect in `testops-svc` template that prevented the chart from being deployed.
 
 ## 5.25.6
 
