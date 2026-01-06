@@ -797,7 +797,7 @@ messaging:
     # - testops_allure_system_storage_clean
     # - testops_allure_system_dead_letter
     ############################################################################################################
-    # Alternative way of defining custom queue names. Uncomment the elements below and provide your custom names.
+    # Alternative way of defining custom queue names: Uncomment the elements below and provide your custom names in the right side.
     # The parameter below allows providing explicit names for SQS queues, overriding the default generated names.
     # If a value from the list below is left empty, a default name will be constructed using the queuePrefix and a standard suffix.
     queues: {}
