@@ -9,6 +9,10 @@ Entries are ordered by priority:
 3. `[ENHANCEMENT]` Improvements to existing features
 4. `[BUGFIX]` Fixes for defects
 
+## 5.25.8
+
+- [BUGFIX] Fixed a defect with quoting of sqs variables that prevented the chart from beeing deployed.
+
 ## 5.25.7
 
 - [BUGFIX] Fixed a defect in testops-svc template that prevented the chart from beeing deployed.
