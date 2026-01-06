@@ -809,10 +809,10 @@ messaging:
       # integrationExportLaunch: ""
       # systemCleanBlobStorage: ""
       # systemDeadLetter: ""
-    # If you are deploying Allure TestOps in AWS EKS and use AWS STSm you don't need to provide accessKey and secretKey.
+    # If you are deploying Allure TestOps in AWS EKS and you are using AWS STS you don't need to provide accessKey and secretKey.
     accessKey: WBuetMuTAMAB4M78NG3gQ4dCFJr3SSmU
     secretKey: m9F4qupW4ucKBDQBWr4rwQLSAeC6FE2L
-    # When enabled, the application will use AWS STS for authentication instead of static credentials.
+    # When enabled (check .Values.awsSTS), the application will use AWS STS for authentication instead of static credentials.
     # The application must have the necessary IAM role assigned for this to work.
     # The following IAM roles must be created for Allure TestOps to work with SQS via STS:
     # "sqs:SendMessage","sqs:ReceiveMessage","sqs:DeleteMessage","sqs:GetQueueAttributes","sqs:GetQueueUrl"
