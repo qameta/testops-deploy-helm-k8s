@@ -783,13 +783,23 @@ messaging:
     region: us-east-1
     ############################################################################################################
     # queuePrefix is prepended to all automatically generated SQS queue names.
+    # (e.g., "testops_allure_upload_process").
     ############################################################################################################
     queuePrefix: testops
     ############################################################################################################
-    # Allows providing explicit names for SQS queues, overriding the default generated names.
-    # If a value is left empty, a default name will be constructed using the queuePrefix and a standard suffix
-    # (e.g., "testops_allure_upload_process").
+    # Allure TestOps DOES NOT create these queues.
+    # When using AWS SQS application expects the following queues to be present (the prefix is added automatically from above):
+    # - testops_allure_upload_process
+    # - testops_allure_upload_process_dlq
+    # - testops_allure_upload_post_process_dlq
+    # - testops_allure_upload_complete_process
+    # - testops_allure_integration_it_export_launch
+    # - testops_allure_system_storage_clean
+    # - testops_allure_system_dead_letter
     ############################################################################################################
+    # Alternative way of defining custom queue names: Uncomment the elements below and provide your custom names in the right side.
+    # The parameter below allows providing explicit names for SQS queues, overriding the default generated names.
+    # If a value from the list below is left empty, a default name will be constructed using the queuePrefix and a standard suffix.
     queues: {}
       # uploadProcess: ""
       # uploadProcessDlq: ""
@@ -799,9 +809,13 @@ messaging:
       # integrationExportLaunch: ""
       # systemCleanBlobStorage: ""
       # systemDeadLetter: ""
-    # If you run Testops in AWS EKS you don't need stating accessKey & secretKey
+    # If you are deploying Allure TestOps in AWS EKS and you are using AWS STS you don't need to provide accessKey and secretKey.
     accessKey: WBuetMuTAMAB4M78NG3gQ4dCFJr3SSmU
     secretKey: m9F4qupW4ucKBDQBWr4rwQLSAeC6FE2L
+    # When enabled (check .Values.awsSTS), the application will use AWS STS for authentication instead of static credentials.
+    # The application must have the necessary IAM role assigned for this to work.
+    # The following IAM roles must be created for Allure TestOps to work with SQS via STS:
+    # "sqs:SendMessage","sqs:ReceiveMessage","sqs:DeleteMessage","sqs:GetQueueAttributes","sqs:GetQueueUrl"
     ############################################################################################################
     # Consumer settings for different queue types.
     # These settings allow fine-tuning of performance and resource consumption for message processing.
