@@ -35,10 +35,24 @@ jobs:
         with:
           version: v3.14.3
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: eu-central-1
+
       - name: Helm publish
         run: |
           echo "Packaging chart charts/${{ env.CHART_NAME }}"
           helm dependency update charts/${{ env.CHART_NAME }}
           helm package charts/${{ env.CHART_NAME }}
+          
           echo "Publishing Helm Chart"
-          curl --fail -u ${{ secrets.ARTIFACTORY_USER }}:${{ secrets.ARTIFACTORY_PASS }} -T ${{ env.CHART_NAME }}-${CHART_VERSION}.tgz https://${{ vars.CHART_REGISTRY }}/artifactory/helm/${{ env.REPO_NAME }}/${{ env.CHART_NAME }}-${CHART_VERSION}.tgz
+          aws s3 cp ${{ env.CHART_NAME }}-${CHART_VERSION}.tgz s3://${{ secrets.S3_BUCKET }}/artifactory/helm/${{ env.REPO_NAME }}/
+          
+          echo "Updating Helm repository index"
+          mkdir -p /tmp/helm-repo
+          cd /tmp/helm-repo
+          aws s3 sync s3://${{ secrets.S3_BUCKET }}/artifactory/helm/ . --exclude "*" --include "*.tgz"
+          helm repo index . --url https://${{ vars.CHART_REGISTRY }}/artifactory/helm
+          aws s3 cp index.yaml s3://${{ secrets.S3_BUCKET }}/artifactory/helm/
