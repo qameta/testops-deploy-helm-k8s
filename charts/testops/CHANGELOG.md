@@ -10,7 +10,7 @@ Entries are ordered by priority:
 4. `[BUGFIX]` Fixes for defects
 5. `[DOCS]` Update of the documentation in `values.yaml`
 
-## 5.25.9
+## 5.26.0
 
 - [ENHANCEMENT] maxS3Concurrency has been renamed to maxS3Connections, its default value has been changed to 100.
 - [ENHANCEMENT] added a possibility to configure S3 thread pool size via `coreS3Threads` and `maxS3Threads` parameters.
