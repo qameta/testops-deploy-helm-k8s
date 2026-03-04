@@ -18,7 +18,7 @@
 # for version upgrades, select the desired version of the application and the most recent chart
 # minimal version of Testops supported by this chart is 25.3.2
 ############################################################################################################
-version: 25.4.1
+version: 25.4.3
 
 ############################################################################################################
 # Deploy related
@@ -743,17 +743,21 @@ externalSecrets:
 # group of parameters for fine-tuning of work with RabbitMQ
 # current values are optimal do not change these without consulting with the tech support https://help.qameta.io
 ############################################################################################################
-maxConcurrency: 5
 parseConsumers: 10
 storeConsumers: 2
 
 ############################################################################################################
 # App related
-# maxS3Concurrency defined number of threads used for the sending commands to S3 for managing the artifacts
-# current values is optimal do not change these without consulting with the tech support https://help.qameta.io
-# if your S3 is slow you can consider lowering the value, which may negatively affect the time of the test results processing
+# S3 related configuration
+# current values are optimal, do not change them without consulting with the tech support https://help.qameta.io
+# if your S3 is slow, you can consider lowering the values, which may negatively affect the time of the test results processing
 ############################################################################################################
-maxS3Concurrency: 200
+# maxS3Connections defines a number of connections to S3 for managing the artifacts
+maxS3Connections: 100
+# coreS3Threads defines a core number of threads to be used for S3 operations
+coreS3Threads: 100
+# maxS3Threads defines a max number of threads to be used for S3 operations
+maxS3Threads: 200
 
 ############################################################################################################
 # App related
