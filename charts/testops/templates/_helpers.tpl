@@ -458,8 +458,6 @@
       secretKeyRef:
         name: {{ template "testops.secret.name" . }}
         key: "rabbitPass"
-  - name: SPRING_RABBITMQ_LISTENER_SIMPLE_MAXCONCURRENCY
-    value: "{{ .Values.maxConcurrency }}"
   - name: ALLURE_UPLOAD_PARSE_CONSUMERSPERQUEUE
     value: {{ .Values.parseConsumers | quote }}
   - name: ALLURE_UPLOAD_STORE_CONSUMERSPERQUEUE
@@ -558,7 +556,11 @@
   - name: ALLURE_BLOBSTORAGE_TYPE
     value: {{ .Values.storage.type }}
   - name: ALLURE_BLOBSTORAGE_MAXCONCURRENCY
-    value: "{{ .Values.maxS3Concurrency }}"
+    value: "{{ .Values.maxS3Connections }}"
+  - name: ALLURE_BLOBSTORAGE_TASKEXECUTOR_COREPOOLSIZE
+    value: "{{ .Values.coreS3Threads }}"
+  - name: ALLURE_BLOBSTORAGE_TASKEXECUTOR_MAXPOOLSIZE
+    value: "{{ .Values.maxS3Threads }}"
 {{- if .Values.storage.s3.advancedS3SDK.enabled }}
   - name: ALLURE_BLOBSTORAGE_BULKREMOVESUPPORTED
     value: {{ .Values.storage.s3.advancedS3SDK.bulkRemoveSupported | quote}}
