@@ -6,6 +6,10 @@ on:
     branches:
       - master
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   lint-test:
     runs-on: cpu16
@@ -36,6 +40,20 @@ jobs:
       - name: Create kind cluster
         uses: helm/kind-action@v1.8.0
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: eu-central-1
+
+      - name: Get ECR token
+        run: |
+          AWS_REGION="${AWS_REGION:-eu-central-1}"
+          ECR_PASSWORD="$(aws ecr get-login-password --region "$AWS_REGION")"
+          echo "::add-mask::$ECR_PASSWORD"
+          echo "ECR_USERNAME=AWS" >> "$GITHUB_ENV"
+          echo "ECR_PASSWORD=$ECR_PASSWORD" >> "$GITHUB_ENV"
+
       - name: Run chart-testing (install)
         timeout-minutes: 10
         run: |
@@ -45,12 +63,12 @@ jobs:
             "--set=postgresql.enabled=true"
             "--set=minio.enabled=true"
             "--set=image.authRequired.enabled=true"
-            "--set=image.registry=dl.qameta.io"
-            "--set=image.repository=docker-internal"
+            "--set=image.registry=${{ secrets.ECR_REGISTRY }}"
+            "--set-string=image.repository="
             "--set=image.imageName=testops-on-premise"
             "--set=image.authRequired.credsKubeSecretName=qameta-secret"
-            "--set=image.authRequired.username=${{ secrets.ARTIFACTORY_USER }}"
-            "--set=image.authRequired.password=${{ secrets.ARTIFACTORY_PASS }}"
+            "--set=image.authRequired.username=${ECR_USERNAME}"
+            "--set-string=image.authRequired.password=${ECR_PASSWORD}"
             "--set=probes.enabled=false"
           )
 

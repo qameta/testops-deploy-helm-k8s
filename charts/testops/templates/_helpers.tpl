@@ -709,9 +709,13 @@
 
 {{- define "getImageRegistry" }}
 {{- if .Values.image.imageName }}
-  {{- printf "%s/%s/%s" .Values.image.registry .Values.image.repository .Values.image.imageName }}
+  {{- if .Values.image.repository }}
+    {{- printf "%s/%s/%s" .Values.image.registry .Values.image.repository .Values.image.imageName }}
+  {{- else }}
+    {{- printf "%s/%s" .Values.image.registry .Values.image.imageName }}
+  {{- end }}
 {{- else }}
-  {{- printf "%s/" .Values.image.repository }}
+  {{- printf "%s" .Values.image.repository }}
 {{- end }}
 {{- end }}
 
