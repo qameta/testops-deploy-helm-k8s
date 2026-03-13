@@ -159,6 +159,12 @@
     value: {{ .Values.auth.defaultRole }}
   - name: TZ
     value: "{{ .Values.timeZone }}"
+  - name: ALLURE_TASKEXECUTOR_COREPOOLSIZE
+    value: "{{ .Values.coreThreads }}"
+  - name: ALLURE_TASKEXECUTOR_MAXPOOLSIZE
+    value: "{{ .Values.maxThreads }}"
+  - name: ALLURE_TASKEXECUTOR_QUEUECAPACITY
+    value: "{{ .Values.threadPoolQueueSize }}"
   - name: JAVA_TOOL_OPTIONS
 {{- if .Values.proxy.enabled }}
     value: "{{ template "renderJavaOpts" .Values.resources.limits.memory }} -Dhttps.proxyHost={{ .Values.proxy.proxyHost }} -Dhttp.proxyHost={{ .Values.proxy.proxyHost }} -Dhttps.proxyPort={{ .Values.proxy.proxyPort }} -Dhttp.proxyPort={{ .Values.proxy.proxyPort }} -Dspring.mail.properties.mail.smtp.proxy.host={{ .Values.proxy.proxyHost }} -Dspring.mail.properties.mail.smtp.proxy.port={{ .Values.proxy.proxyPort }} -Dhttps.nonProxyHosts={{ .Values.proxy.nonProxy }} -Dhttp.nonProxyHosts={{ .Values.proxy.nonProxy }} -Djavax.net.ssl.trustStore=/etc/pki/ca-trust/extracted/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit"
@@ -561,6 +567,8 @@
     value: "{{ .Values.coreS3Threads }}"
   - name: ALLURE_BLOBSTORAGE_TASKEXECUTOR_MAXPOOLSIZE
     value: "{{ .Values.maxS3Threads }}"
+  - name: ALLURE_BLOBSTORAGE_TASKEXECUTOR_QUEUECAPACITY
+    value: "{{ .Values.threadPoolS3QueueSize }}"
 {{- if .Values.storage.s3.advancedS3SDK.enabled }}
   - name: ALLURE_BLOBSTORAGE_BULKREMOVESUPPORTED
     value: {{ .Values.storage.s3.advancedS3SDK.bulkRemoveSupported | quote}}

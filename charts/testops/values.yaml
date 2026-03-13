@@ -740,11 +740,15 @@ externalSecrets:
 
 ############################################################################################################
 # App related
-# group of parameters for fine-tuning of work with RabbitMQ
-# current values are optimal do not change these without consulting with the tech support https://help.qameta.io
+# Thread pool configuration
+# current values are optimal, do not change them without consulting with the tech support https://help.qameta.io
 ############################################################################################################
-parseConsumers: 10
-storeConsumers: 2
+# coreThreads defines a core number of threads to be used in async operations (such as export pdf/csv)
+coreThreads: 200
+# maxThreads defines a max number of threads to be used in async operations (such as export pdf/csv)
+maxThreads: 200
+# maxThreads defines defines a thread pool queue capacity for async operations (such as export pdf/csv)
+threadPoolQueueSize: 1000
 
 ############################################################################################################
 # App related
@@ -753,11 +757,21 @@ storeConsumers: 2
 # if your S3 is slow, you can consider lowering the values, which may negatively affect the time of the test results processing
 ############################################################################################################
 # maxS3Connections defines a number of connections to S3 for managing the artifacts
-maxS3Connections: 100
+maxS3Connections: 200
 # coreS3Threads defines a core number of threads to be used for S3 operations
-coreS3Threads: 100
+coreS3Threads: 200
 # maxS3Threads defines a max number of threads to be used for S3 operations
 maxS3Threads: 200
+# threadPoolS3QueueSize defines a thread pool queue capacity for S3 operations
+threadPoolS3QueueSize: 1000000
+
+############################################################################################################
+# App related
+# group of parameters for fine-tuning of work with RabbitMQ
+# current values are optimal do not change these without consulting with the tech support https://help.qameta.io
+############################################################################################################
+parseConsumers: 10
+storeConsumers: 2
 
 ############################################################################################################
 # App related

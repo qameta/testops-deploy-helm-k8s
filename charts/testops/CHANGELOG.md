@@ -10,6 +10,10 @@ Entries are ordered by priority:
 4. `[BUGFIX]` Fixes for defects
 5. `[DOCS]` Update of the documentation in `values.yaml`
 
+## 5.26.1
+
+- [BUGFIX] More precise configuration of the application's thread pools
+
 ## 5.26.0
 
 - [ENHANCEMENT] maxS3Concurrency has been renamed to maxS3Connections, its default value has been changed to 100.
