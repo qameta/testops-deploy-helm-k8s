@@ -10,6 +10,10 @@ Entries are ordered by priority:
 4. `[BUGFIX]` Fixes for defects
 5. `[DOCS]` Update of the documentation in `values.yaml`
 
+## 5.26.2
+
+- [BUGFIX] Fixed scientific notation in the application's thread pool configuration.
+
 ## 5.26.1
 
 - [BUGFIX] More precise configuration of the application's thread pools
