@@ -619,6 +619,51 @@
     value: {{ .Values.storage.s3.serverSideEncryption.keyId | quote }}
 {{- end }}
 {{- end }}
+
+{{- if eq .Values.storage.type "S3_SHARDED" }}
+{{- range $index, $storage := .Values.storage.s3.additionalStorages }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_NAME
+    value: {{ $storage.name | quote }}
+{{- if $storage.endpoint }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_ENDPOINT
+    value: {{ $storage.endpoint | quote }}
+{{- end }}
+{{- if $storage.bucket }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_BUCKET
+    value: {{ $storage.bucket | quote }}
+{{- end }}
+{{- if $storage.region }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_REGION
+    value: {{ $storage.region | quote }}
+{{- end }}
+{{- if $storage.accessKey }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_ACCESSKEY
+    value: {{ $storage.accessKey | quote }}
+{{- end }}
+{{- if $storage.secretKey }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_SECRETKEY
+    value: {{ $storage.secretKey | quote }}
+{{- end }}
+{{- if and $storage.serverSideEncryption $storage.serverSideEncryption.enabled }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_SERVERSIDEENCRYPTION
+    value: {{ $storage.serverSideEncryption.type | quote }}
+{{- if $storage.serverSideEncryption.keyId }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_KMSKEYID
+    value: {{ $storage.serverSideEncryption.keyId | quote }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- range $projectId, $config := .Values.storage.s3.projects }}
+{{- if $config.storage }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_PROJECTS_{{ $projectId }}_STORAGE
+    value: {{ $config.storage | quote }}
+{{- end }}
+{{- if $config.bucket }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_PROJECTS_{{ $projectId }}_BUCKET
+    value: {{ $config.bucket | quote }}
+{{- end }}
+{{- end }}
+{{- end }}
 {{- end }}
 
 {{- define "renderFSEnvs" }}

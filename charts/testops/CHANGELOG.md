@@ -10,6 +10,10 @@ Entries are ordered by priority:
 4. `[BUGFIX]` Fixes for defects
 5. `[DOCS]` Update of the documentation in `values.yaml`
 
+## 5.27.0
+
+- [FEATURE] Added configuration support for `S3_SHARDED` storage type, allowing users to configure multiple S3 storages and map them to specific projects.
+
 ## 5.26.2
 
 - [BUGFIX] Fixed scientific notation in the application's thread pool configuration.
