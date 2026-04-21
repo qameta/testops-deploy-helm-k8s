@@ -449,13 +449,13 @@ storage:
     ## If a property is not set, the default S3 configuration will be used.
     ## e.g:
     ## projects:
-    ##   
+    ##
     ##   12: // project 12 uses default bucket defined for "eu-storage"
     ##     storage: "eu-storage"
-    ##   
+    ##
     ##   45: //project 45 uses default S3 solution but dedicated bucket "custom-us-bucket"
     ##     bucket: "custom-us-bucket"
-    ##  
+    ##
     ##   90: project 90 uses storage "eu-storage" but its own (not default) bucket – "custom-eu-bucket"
     ##     storage: "eu-storage"
     ##     bucket: "custom-eu-bucket"
