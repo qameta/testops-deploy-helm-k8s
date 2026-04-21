@@ -402,7 +402,7 @@ storage:
     # Some providers have path style access like s3.provider.com/bucket-name others have domain style
     # Like bucket-name.s3.provider.com. Choose your provider's
     ############################################################################################################
-    # AWS S3 supports both pathstyle: false/true, other solutions (minio etc) most likely support TRUE only
+    # AWS S3 supports both pathstyle: false/true, other solutions (minio, ceph etc) most likely support TRUE only
     ############################################################################################################
     pathstyle: false
     bucket: testops-testops
