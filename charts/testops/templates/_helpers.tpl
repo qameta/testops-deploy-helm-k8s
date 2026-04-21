@@ -559,6 +559,7 @@
 
 
 {{- define "renderS3Envs" }}
+{{- $s3Prefix := ternary "S3SHARDED" "S3" (eq .Values.storage.type "S3_SHARDED") }}
   - name: ALLURE_BLOBSTORAGE_TYPE
     value: {{ .Values.storage.type }}
   - name: ALLURE_BLOBSTORAGE_MAXCONCURRENCY
@@ -577,45 +578,45 @@
   - name: ALLURE_BLOBSTORAGE_COPYSUPPORTED
     value: {{ .Values.storage.s3.advancedS3SDK.copySupported | quote}}
 {{- end }}
-  - name: ALLURE_BLOBSTORAGE_S3_ENDPOINT
+  - name: ALLURE_BLOBSTORAGE_{{ $s3Prefix }}_ENDPOINT
 {{- if .Values.minio.enabled }}
     value: http://{{ template "testops.minio.fullname" . }}:{{ .Values.minio.service.ports.api }}
-  - name: ALLURE_BLOBSTORAGE_S3_PATHSTYLEACCESS
+  - name: ALLURE_BLOBSTORAGE_{{ $s3Prefix }}_PATHSTYLEACCESS
     value: "true"
 {{- else }}
     value: {{ .Values.storage.s3.endpoint }}
-  - name: ALLURE_BLOBSTORAGE_S3_PATHSTYLEACCESS
+  - name: ALLURE_BLOBSTORAGE_{{ $s3Prefix }}_PATHSTYLEACCESS
     value: "{{ .Values.storage.s3.pathstyle }}"
 {{- end }}
-  - name: ALLURE_BLOBSTORAGE_S3_BUCKET
+  - name: ALLURE_BLOBSTORAGE_{{ $s3Prefix }}_BUCKET
 {{- if .Values.minio.enabled }}
     value: {{ .Values.minio.defaultBuckets }}
 {{- else }}
     value: {{ .Values.storage.s3.bucket }}
 {{- end }}
-  - name: ALLURE_BLOBSTORAGE_S3_REGION
+  - name: ALLURE_BLOBSTORAGE_{{ $s3Prefix }}_REGION
 {{- if .Values.minio.enabled }}
     value: {{ .Values.minio.defaultRegion }}
 {{- else }}
     value: {{ .Values.storage.s3.region}}
 {{- end }}
 {{- if not .Values.storage.awsSTS.enabled }}
-  - name: ALLURE_BLOBSTORAGE_S3_ACCESSKEY
+  - name: ALLURE_BLOBSTORAGE_{{ $s3Prefix }}_ACCESSKEY
     valueFrom:
       secretKeyRef:
         name: {{ template "testops.secret.name" . }}
         key: "s3AccessKey"
-  - name: ALLURE_BLOBSTORAGE_S3_SECRETKEY
+  - name: ALLURE_BLOBSTORAGE_{{ $s3Prefix }}_SECRETKEY
     valueFrom:
       secretKeyRef:
         name: {{ template "testops.secret.name" . }}
         key: "s3SecretKey"
 {{- end }}
 {{- if .Values.storage.s3.serverSideEncryption.enabled }}
-  - name: ALLURE_BLOB_STORAGE_S3_SERVER_SIDE_ENCRYPTION
+  - name: ALLURE_BLOBSTORAGE_{{ $s3Prefix }}_SERVERSIDEENCRYPTION
     value: {{ .Values.storage.s3.serverSideEncryption.type | quote }}
 {{- if .Values.storage.s3.serverSideEncryption.keyId }}
-  - name: ALLURE_BLOB_STORAGE_S3_KMS_KEY_ID
+  - name: ALLURE_BLOBSTORAGE_{{ $s3Prefix }}_KMSKEYID
     value: {{ .Values.storage.s3.serverSideEncryption.keyId | quote }}
 {{- end }}
 {{- end }}
