@@ -644,6 +644,10 @@
   - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_SECRETKEY
     value: {{ $storage.secretKey | quote }}
 {{- end }}
+{{- if $storage.pathstyle }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_PATHSTYLEACCESS
+    value: {{ $storage.pathstyle | quote }}
+{{- end }}
 {{- if and $storage.serverSideEncryption $storage.serverSideEncryption.enabled }}
   - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_SERVERSIDEENCRYPTION
     value: {{ $storage.serverSideEncryption.type | quote }}
