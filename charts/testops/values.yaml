@@ -402,7 +402,7 @@ storage:
     # Some providers have path style access like s3.provider.com/bucket-name others have domain style
     # Like bucket-name.s3.provider.com. Choose your provider's
     ############################################################################################################
-    # AWS S3 supports both pathstyle: false/true, other solutions most likely support false only
+    # AWS S3 supports both pathstyle: false/true, other solutions (minio etc) most likely support TRUE only
     ############################################################################################################
     pathstyle: false
     bucket: testops-testops
@@ -427,6 +427,7 @@ storage:
       # Ref: https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html#aws-managed-customer-managed-keys
       keyId:
     ## @param storage.s3.additionalStorages defines an array of additional S3 storages for S3_SHARDED mode.
+    ## Storage represents an isolated solution with its own endpoint, bucket, region, accessKey, secretKey, and serverSideEncryption settings.
     ## Each storage requires a unique 'name' and can override default S3 parameters like endpoint, bucket, region, accessKey, secretKey, and serverSideEncryption.
     ## e.g:
     ## additionalStorages:
@@ -434,6 +435,9 @@ storage:
     ##     endpoint: "https://s3.eu-central-1.amazonaws.com"
     ##     bucket: "allure-eu-bucket"
     ##     region: "eu-central-1"
+    ##     accessKey: "EU_ACCESS_KEY"
+    ##     secretKey: "EU_SECRET_KEY"
+    ##     pathstyle: false
     ##     serverSideEncryption:
     ##       enabled: true
     ##       type: "AWS_KMS"
@@ -442,13 +446,20 @@ storage:
     additionalStorages: []
     ## @param storage.s3.projects defines a map of project-specific S3 configurations for S3_SHARDED mode.
     ## The key is the project ID. You can specify a custom 'bucket' and/or a 'storage' name (referencing an entry from additionalStorages).
+    ## If a certain project only uses separate bucket but the same S3 solution, specify only bucket name, and do not specify storage name (see 45).
     ## If a property is not set, the default S3 configuration will be used.
     ## e.g:
     ## projects:
-    ##   12:
+    ##   
+    ##   12: // project 12 uses default bucket defined for "eu-storage"
     ##     storage: "eu-storage"
-    ##   45:
+    ##   
+    ##   45: //project 45 uses default S3 solution but dedicated bucket "custom-us-bucket"
     ##     bucket: "custom-us-bucket"
+    ##  
+    ##   90: project 90 uses storage "eu-storage" but its own (not default) bucket – "custom-eu-bucket"
+    ##     storage: "eu-storage"
+    ##     bucket: "custom-eu-bucket"
     ##
     projects: []
   csi:
