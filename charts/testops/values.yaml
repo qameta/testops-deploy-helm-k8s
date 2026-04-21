@@ -112,7 +112,7 @@ timeZone: "Europe/London"
 # Make sure SMTP parameters are set to send the invite.
 # SMTP server settings are mandatory for the creation of first user.
 ############################################################################################################
-email: you@company.com
+email: first.admin@email.company.com
 
 ############################################################################################################
 # cryptoPass parameter is used to encrypt sensitive data (passwords, API tokens in the database)
