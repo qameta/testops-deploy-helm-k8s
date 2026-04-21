@@ -428,7 +428,7 @@ storage:
       keyId:
     ## @param storage.s3.additionalStorages defines an array of additional S3 storages for S3_SHARDED mode.
     ## Storage represents an isolated solution with its own endpoint, bucket, region, accessKey, secretKey, and serverSideEncryption settings.
-    ## Each storage requires a unique 'name' and can override default S3 parameters like endpoint, bucket, region, accessKey, secretKey, and serverSideEncryption.
+    ## Each storage requires a unique 'name' and can override default S3 parameters like endpoint, bucket, region, accessKey, secretKey, pathstyleand serverSideEncryption.
     ## e.g:
     ## additionalStorages:
     ##   - name: "eu-storage"
@@ -446,7 +446,6 @@ storage:
     additionalStorages: []
     ## @param storage.s3.projects defines a map of project-specific S3 configurations for S3_SHARDED mode.
     ## The key is the project ID. You can specify a custom 'bucket' and/or a 'storage' name (referencing an entry from additionalStorages).
-    ## If a certain project only uses separate bucket but the same S3 solution, specify only bucket name, and do not specify storage name (see 45).
     ## If a property is not set, the default S3 configuration will be used.
     ## e.g:
     ## projects:
