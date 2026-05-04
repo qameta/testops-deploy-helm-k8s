@@ -112,7 +112,7 @@ timeZone: "Europe/London"
 # Make sure SMTP parameters are set to send the invite.
 # SMTP server settings are mandatory for the creation of first user.
 ############################################################################################################
-email: you@company.com
+email: first.admin@email.company.com
 
 ############################################################################################################
 # cryptoPass parameter is used to encrypt sensitive data (passwords, API tokens in the database)
@@ -366,7 +366,9 @@ smtp:
 # 2) S3_ASYNC - recommended for AWS S3, this option supports parameters described in .Values.storage.s3.advancedS3SDK
 # S3_ASYNC allows usage of optimised commands towards S3 solution (e.g. delete objects). Consult your solution
 # documentation before using this option
-# 3) CSI
+# 3) S3_SHARDED - allows configuring multiple S3 storages
+# and mapping them to specific projects via .Values.storage.s3.additionalStorages and .Values.storage.s3.projects
+# 4) CSI
 # For CSI refer to https://kubernetes-csi.github.io/docs/drivers.html
 # S3 is preferable. The best option is using SaaS S3 AWS or other S3 comparable services.
 # It's highly recommended disabling versioning for S3 from the very start
@@ -377,6 +379,7 @@ storage:
   # Options are:
   # - S3
   # - S3_ASYNC
+  # - S3_SHARDED
   # - CSI
   type: "S3"
   s3:
@@ -399,7 +402,7 @@ storage:
     # Some providers have path style access like s3.provider.com/bucket-name others have domain style
     # Like bucket-name.s3.provider.com. Choose your provider's
     ############################################################################################################
-    # AWS S3 supports both pathstyle: false/true, other solutions most likely support false only
+    # AWS S3 supports both pathstyle: false/true, other solutions (minio, ceph etc) most likely support TRUE only
     ############################################################################################################
     pathstyle: false
     bucket: testops-testops
@@ -423,6 +426,41 @@ storage:
       # The ARN format is: arn:aws:kms:<region>:<account-id>:key/<key-id>
       # Ref: https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html#aws-managed-customer-managed-keys
       keyId:
+    ## @param storage.s3.additionalStorages defines an array of additional S3 storages for S3_SHARDED mode.
+    ## Storage represents an isolated solution with its own endpoint, bucket, region, accessKey, secretKey, and serverSideEncryption settings.
+    ## Each storage requires a unique 'name' and can override default S3 parameters like endpoint, bucket, region, accessKey, secretKey, pathstyleand serverSideEncryption.
+    ## e.g:
+    ## additionalStorages:
+    ##   - name: "eu-storage"
+    ##     endpoint: "https://s3.eu-central-1.amazonaws.com"
+    ##     bucket: "allure-eu-bucket"
+    ##     region: "eu-central-1"
+    ##     accessKey: "EU_ACCESS_KEY"
+    ##     secretKey: "EU_SECRET_KEY"
+    ##     pathstyle: false
+    ##     serverSideEncryption:
+    ##       enabled: true
+    ##       type: "AWS_KMS"
+    ##       keyId: "arn:aws:kms:eu-central-1:123456789012:key/12345678-1234-1234-1234-123456789012"
+    ##
+    additionalStorages: []
+    ## @param storage.s3.projects defines a map of project-specific S3 configurations for S3_SHARDED mode.
+    ## The key is the project ID. You can specify a custom 'bucket' and/or a 'storage' name (referencing an entry from additionalStorages).
+    ## If a property is not set, the default S3 configuration will be used.
+    ## e.g:
+    ## projects:
+    ##
+    ##   12: // project 12 uses default bucket defined for "eu-storage"
+    ##     storage: "eu-storage"
+    ##
+    ##   45: //project 45 uses default S3 solution but dedicated bucket "custom-us-bucket"
+    ##     bucket: "custom-us-bucket"
+    ##
+    ##   90: project 90 uses storage "eu-storage" but its own (not default) bucket – "custom-eu-bucket"
+    ##     storage: "eu-storage"
+    ##     bucket: "custom-eu-bucket"
+    ##
+    projects: []
   csi:
     storageClass: ""
     existingVolumeName: ""

@@ -559,6 +559,7 @@
 
 
 {{- define "renderS3Envs" }}
+{{- $s3Prefix := ternary "S3SHARDED" "S3" (eq .Values.storage.type "S3_SHARDED") }}
   - name: ALLURE_BLOBSTORAGE_TYPE
     value: {{ .Values.storage.type }}
   - name: ALLURE_BLOBSTORAGE_MAXCONCURRENCY
@@ -577,46 +578,95 @@
   - name: ALLURE_BLOBSTORAGE_COPYSUPPORTED
     value: {{ .Values.storage.s3.advancedS3SDK.copySupported | quote}}
 {{- end }}
-  - name: ALLURE_BLOBSTORAGE_S3_ENDPOINT
+  - name: ALLURE_BLOBSTORAGE_{{ $s3Prefix }}_ENDPOINT
 {{- if .Values.minio.enabled }}
     value: http://{{ template "testops.minio.fullname" . }}:{{ .Values.minio.service.ports.api }}
-  - name: ALLURE_BLOBSTORAGE_S3_PATHSTYLEACCESS
+  - name: ALLURE_BLOBSTORAGE_{{ $s3Prefix }}_PATHSTYLEACCESS
     value: "true"
 {{- else }}
     value: {{ .Values.storage.s3.endpoint }}
-  - name: ALLURE_BLOBSTORAGE_S3_PATHSTYLEACCESS
+  - name: ALLURE_BLOBSTORAGE_{{ $s3Prefix }}_PATHSTYLEACCESS
     value: "{{ .Values.storage.s3.pathstyle }}"
 {{- end }}
-  - name: ALLURE_BLOBSTORAGE_S3_BUCKET
+  - name: ALLURE_BLOBSTORAGE_{{ $s3Prefix }}_BUCKET
 {{- if .Values.minio.enabled }}
     value: {{ .Values.minio.defaultBuckets }}
 {{- else }}
     value: {{ .Values.storage.s3.bucket }}
 {{- end }}
-  - name: ALLURE_BLOBSTORAGE_S3_REGION
+  - name: ALLURE_BLOBSTORAGE_{{ $s3Prefix }}_REGION
 {{- if .Values.minio.enabled }}
     value: {{ .Values.minio.defaultRegion }}
 {{- else }}
     value: {{ .Values.storage.s3.region}}
 {{- end }}
 {{- if not .Values.storage.awsSTS.enabled }}
-  - name: ALLURE_BLOBSTORAGE_S3_ACCESSKEY
+  - name: ALLURE_BLOBSTORAGE_{{ $s3Prefix }}_ACCESSKEY
     valueFrom:
       secretKeyRef:
         name: {{ template "testops.secret.name" . }}
         key: "s3AccessKey"
-  - name: ALLURE_BLOBSTORAGE_S3_SECRETKEY
+  - name: ALLURE_BLOBSTORAGE_{{ $s3Prefix }}_SECRETKEY
     valueFrom:
       secretKeyRef:
         name: {{ template "testops.secret.name" . }}
         key: "s3SecretKey"
 {{- end }}
 {{- if .Values.storage.s3.serverSideEncryption.enabled }}
-  - name: ALLURE_BLOB_STORAGE_S3_SERVER_SIDE_ENCRYPTION
+  - name: ALLURE_BLOBSTORAGE_{{ $s3Prefix }}_SERVERSIDEENCRYPTION
     value: {{ .Values.storage.s3.serverSideEncryption.type | quote }}
 {{- if .Values.storage.s3.serverSideEncryption.keyId }}
-  - name: ALLURE_BLOB_STORAGE_S3_KMS_KEY_ID
+  - name: ALLURE_BLOBSTORAGE_{{ $s3Prefix }}_KMSKEYID
     value: {{ .Values.storage.s3.serverSideEncryption.keyId | quote }}
+{{- end }}
+{{- end }}
+
+{{- if eq .Values.storage.type "S3_SHARDED" }}
+{{- range $index, $storage := .Values.storage.s3.additionalStorages }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_NAME
+    value: {{ $storage.name | quote }}
+{{- if $storage.endpoint }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_ENDPOINT
+    value: {{ $storage.endpoint | quote }}
+{{- end }}
+{{- if $storage.bucket }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_BUCKET
+    value: {{ $storage.bucket | quote }}
+{{- end }}
+{{- if $storage.region }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_REGION
+    value: {{ $storage.region | quote }}
+{{- end }}
+{{- if $storage.accessKey }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_ACCESSKEY
+    value: {{ $storage.accessKey | quote }}
+{{- end }}
+{{- if $storage.secretKey }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_SECRETKEY
+    value: {{ $storage.secretKey | quote }}
+{{- end }}
+{{- if $storage.pathstyle }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_PATHSTYLEACCESS
+    value: {{ $storage.pathstyle | quote }}
+{{- end }}
+{{- if and $storage.serverSideEncryption $storage.serverSideEncryption.enabled }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_SERVERSIDEENCRYPTION
+    value: {{ $storage.serverSideEncryption.type | quote }}
+{{- if $storage.serverSideEncryption.keyId }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_KMSKEYID
+    value: {{ $storage.serverSideEncryption.keyId | quote }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- range $projectId, $config := .Values.storage.s3.projects }}
+{{- if $config.storage }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_PROJECTS_{{ $projectId }}_STORAGE
+    value: {{ $config.storage | quote }}
+{{- end }}
+{{- if $config.bucket }}
+  - name: ALLURE_BLOBSTORAGE_S3SHARDED_PROJECTS_{{ $projectId }}_BUCKET
+    value: {{ $config.bucket | quote }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
