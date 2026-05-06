@@ -10,6 +10,10 @@ Entries are ordered by priority:
 4. `[BUGFIX]` Fixes for defects
 5. `[DOCS]` Update of the documentation in `values.yaml`
 
+## 5.27.1
+
+- [FEATURE] Added support for custom secret annotations via `annotations.secret` configuration block. This allows users to define additional annotations for secrets, enhancing automation metadata or configuration for tools like ingress controllers and operators.
+
 ## 5.27.0
 
 - [FEATURE] Added configuration support for `S3_SHARDED` storage type, allowing users to configure multiple S3 storages and map them to specific projects.
