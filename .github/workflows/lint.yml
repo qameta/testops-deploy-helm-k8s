@@ -39,7 +39,12 @@ jobs:
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.8.0
-
+        
+      - name: Debug OIDC
+        run: |
+          [ -n "$ACTIONS_ID_TOKEN_REQUEST_TOKEN" ] && echo "oidc=yes" || echo "oidc=no"
+          [ -n "$ACTIONS_ID_TOKEN_REQUEST_URL" ] && echo "oidc_url=yes" || echo "oidc_url=no"
+          
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
