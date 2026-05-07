@@ -637,13 +637,17 @@
   - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_REGION
     value: {{ $storage.region | quote }}
 {{- end }}
-{{- if $storage.accessKey }}
+{{- if not $storage.awsSTS.enabled }}
   - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_ACCESSKEY
-    value: {{ $storage.accessKey | quote }}
-{{- end }}
-{{- if $storage.secretKey }}
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "testops.secret.name" $ }}
+        key: "s3AdditionalStorage{{ $index }}AccessKey"
   - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_SECRETKEY
-    value: {{ $storage.secretKey | quote }}
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "testops.secret.name" $ }}
+        key: "s3AdditionalStorage{{ $index }}SecretKey"
 {{- end }}
 {{- if $storage.pathstyle }}
   - name: ALLURE_BLOBSTORAGE_S3SHARDED_STORAGES_{{ $index }}_PATHSTYLEACCESS
