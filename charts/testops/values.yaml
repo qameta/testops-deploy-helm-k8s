@@ -431,8 +431,10 @@ storage:
       # Ref: https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html#aws-managed-customer-managed-keys
       keyId:
     ## @param storage.s3.additionalStorages defines an array of additional S3 storages for S3_SHARDED mode.
-    ## Storage represents an isolated solution with its own endpoint, bucket, region, accessKey, secretKey, and serverSideEncryption settings.
-    ## Each storage requires a unique 'name' and can override default S3 parameters like endpoint, bucket, region, accessKey, secretKey, pathstyleand serverSideEncryption.
+    ## Storage represents an isolated solution with its own endpoint, bucket, region, pathstyle and serverSideEncryption settings.
+    ## Each storage requires a unique 'name' and can override default S3 parameters like endpoint, bucket, region, pathstyle and serverSideEncryption.
+    ## Credentials are rendered from Kubernetes Secret only when awsSTS.enabled is false for a specific storage.
+    ## If awsSTS.enabled is true, accessKey and secretKey are not rendered for that storage.
     ## e.g:
     ## additionalStorages:
     ##   - name: "eu-storage"
@@ -442,10 +444,21 @@ storage:
     ##     accessKey: "EU_ACCESS_KEY"
     ##     secretKey: "EU_SECRET_KEY"
     ##     pathstyle: false
+    ##     awsSTS:
+    ##       enabled: true
     ##     serverSideEncryption:
     ##       enabled: true
     ##       type: "AWS_KMS"
     ##       keyId: "arn:aws:kms:eu-central-1:123456789012:key/12345678-1234-1234-1234-123456789012"
+    ##   - name: "us-storage"
+    ##     endpoint: "https://s3.us-east-1.amazonaws.com"
+    ##     bucket: "allure-us-bucket"
+    ##     region: "us-east-1"
+    ##     pathstyle: false
+    ##     awsSTS:
+    ##       enabled: false
+    ##     accessKey: ""
+    ##     secretKey: ""
     ##
     additionalStorages: []
     ## @param storage.s3.projects defines a map of project-specific S3 configurations for S3_SHARDED mode.

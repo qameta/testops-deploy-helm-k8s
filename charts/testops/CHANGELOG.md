@@ -10,6 +10,10 @@ Entries are ordered by priority:
 4. `[BUGFIX]` Fixes for defects
 5. `[DOCS]` Update of the documentation in `values.yaml`
 
+## 5.27.2
+
+- [ENHANCEMENT] Improved `S3_SHARDED` configuration by moving additional storage credentials to Kubernetes secrets and adding per-storage `awsSTS.enabled` control. This allows each additional S3 storage to either use secret-based credentials or rely on AWS STS/IAM role authentication independently.
+
 ## 5.27.1
 
 - [FEATURE] Added support for custom secret annotations via `annotations.secret` configuration block. This allows users to define additional annotations for secrets, enhancing automation metadata or configuration for tools like ingress controllers and operators.
