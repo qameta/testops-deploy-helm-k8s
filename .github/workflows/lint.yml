@@ -7,7 +7,6 @@ on:
       - master
 
 permissions:
-  id-token: write
   contents: read
 
 jobs:
@@ -40,35 +39,19 @@ jobs:
       - name: Create kind cluster
         uses: helm/kind-action@v1.8.0
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: eu-central-1
-
-      - name: Get ECR token
-        run: |
-          AWS_REGION="${AWS_REGION:-eu-central-1}"
-          ECR_PASSWORD="$(aws ecr get-login-password --region "$AWS_REGION")"
-          echo "::add-mask::$ECR_PASSWORD"
-          echo "ECR_USERNAME=AWS" >> "$GITHUB_ENV"
-          echo "ECR_PASSWORD=$ECR_PASSWORD" >> "$GITHUB_ENV"
-
       - name: Run chart-testing (install)
         timeout-minutes: 10
         run: |
-          # Define all extra arguments for Helm in a bash array for readability
           EXTRA_ARGS=(
             "--set=smtp.enabled=false"
             "--set=postgresql.enabled=true"
             "--set=minio.enabled=true"
-            "--set=image.authRequired.enabled=true"
-            "--set=image.registry=${{ secrets.ECR_REGISTRY }}"
+            "--set=image.authRequired.enabled=false"
+            "--set=image.registry=registry.k8s.io"
             "--set-string=image.repository="
-            "--set=image.imageName=testops-on-premise"
-            "--set=image.authRequired.credsKubeSecretName=qameta-secret"
-            "--set=image.authRequired.username=${ECR_USERNAME}"
-            "--set-string=image.authRequired.password=${ECR_PASSWORD}"
+            "--set=image.imageName=pause"
+            "--set=image.pullPolicy=IfNotPresent"
+            "--set=version=3.10"
             "--set=probes.enabled=false"
           )
 
