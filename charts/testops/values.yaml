@@ -18,7 +18,7 @@
 # for version upgrades, select the desired version of the application and the most recent chart
 # minimal version of Testops supported by this chart is 26.1.1
 ############################################################################################################
-version: 26.1.1
+version: 26.2.2.3
 
 ############################################################################################################
 # Deploy related
@@ -272,7 +272,7 @@ datasources:
 # if disabled, please make sure you are setting appMaxDBConnection at least equal to 10
 ############################################################################################################
   uploaderDatasource:
-    enabled: false
+    enabled: true
     appMaxDBConnection: 5
     appConnectionTimeout: 60000
 ############################################################################################################
@@ -283,7 +283,7 @@ datasources:
 # for the highly loaded system we recommend using RO replica for accessing the historical data / statistics
 ############################################################################################################
   analyticsDatasource:
-    enabled: false
+    enabled: true
     # If Patroni is enabled, this setting will be ignored, and the hosts from the Patroni configuration will be used instead.
     dbHost: db.example-ro.com
     dbPort: 5432
