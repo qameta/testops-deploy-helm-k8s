@@ -1,3 +1,9 @@
+{{- if and .Values.datasources.clientTLS.enabled (not (or .Values.datasources.clientTLS.secret.name .Values.datasources.clientTLS.csi)) }}
+{{- fail "datasources.clientTLS.enabled=true requires either datasources.clientTLS.secret.name or datasources.clientTLS.csi" }}
+{{- end }}
+{{- if and .Values.certificates.truststore.enabled (not (or .Values.certificates.truststore.secretName .Values.certificates.truststore.configMapName)) }}
+{{- fail "certificates.truststore.enabled=true requires either certificates.truststore.secretName or certificates.truststore.configMapName" }}
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment

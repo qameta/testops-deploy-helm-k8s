@@ -108,6 +108,20 @@
 {{- end }}
 
 {{- define "renderCommonEnvs" }}
+{{- if and .Values.certificates.truststore.enabled .Values.certificates.truststore.passwordSecret.name }}
+  - name: TESTOPS_TRUSTSTORE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: {{ .Values.certificates.truststore.passwordSecret.name }}
+        key: {{ .Values.certificates.truststore.passwordSecret.key }}
+{{- end }}
+{{- if and .Values.datasources.clientTLS.enabled .Values.datasources.clientTLS.keystorePasswordSecret.name }}
+  - name: TESTOPS_KEYSTORE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: {{ .Values.datasources.clientTLS.keystorePasswordSecret.name }}
+        key: {{ .Values.datasources.clientTLS.keystorePasswordSecret.key }}
+{{- end }}
   - name: ALLURE_MAIL_ROOT
     value: "{{ .Values.email }}"
   - name: SPRING_PROFILES_ACTIVE
@@ -826,7 +840,9 @@ JVM trustStore options.
 */}}
 {{- define "renderTrustStoreJavaOpts" -}}
 {{- if .Values.certificates.truststore.enabled -}}
-{{- printf " -Djavax.net.ssl.trustStore=/etc/ssl/trust/%s -Djavax.net.ssl.trustStorePassword=%s -Djavax.net.ssl.trustStoreType=PKCS12" .Values.certificates.truststore.key .Values.certificates.truststore.password -}}
+{{- $pw := .Values.certificates.truststore.password -}}
+{{- if .Values.certificates.truststore.passwordSecret.name -}}{{- $pw = "$(TESTOPS_TRUSTSTORE_PASSWORD)" -}}{{- end -}}
+{{- printf " -Djavax.net.ssl.trustStore=/etc/ssl/trust/%s -Djavax.net.ssl.trustStorePassword=%s -Djavax.net.ssl.trustStoreType=PKCS12" .Values.certificates.truststore.key $pw -}}
 {{- else if or .Values.certificates.configmapName .Values.certificates.secretName -}}
 {{- " -Djavax.net.ssl.trustStore=/etc/pki/ca-trust/extracted/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit" -}}
 {{- end -}}
@@ -837,6 +853,8 @@ JVM keyStore options for the DB client certificate (mutual TLS).
 */}}
 {{- define "renderClientTlsJavaOpts" -}}
 {{- if .Values.datasources.clientTLS.enabled -}}
-{{- printf " -Djavax.net.ssl.keyStore=/etc/ssl/db-client/%s -Djavax.net.ssl.keyStorePassword=%s -Djavax.net.ssl.keyStoreType=PKCS12" .Values.datasources.clientTLS.keystoreFilename .Values.datasources.clientTLS.keystorePassword -}}
+{{- $pw := .Values.datasources.clientTLS.keystorePassword -}}
+{{- if .Values.datasources.clientTLS.keystorePasswordSecret.name -}}{{- $pw = "$(TESTOPS_KEYSTORE_PASSWORD)" -}}{{- end -}}
+{{- printf " -Djavax.net.ssl.keyStore=/etc/ssl/db-client/%s -Djavax.net.ssl.keyStorePassword=%s -Djavax.net.ssl.keyStoreType=PKCS12" .Values.datasources.clientTLS.keystoreFilename $pw -}}
 {{- end -}}
 {{- end -}}

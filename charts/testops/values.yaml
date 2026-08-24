@@ -194,6 +194,12 @@ certificates:
     enabled: false
     key: truststore.p12
     password: changeit
+    # Optional: source the PKCS12 password from a Secret instead of the literal above.
+    # It is injected as an env var and referenced via $(VAR) in JAVA_TOOL_OPTIONS, so the
+    # password is not rendered into the container spec. Takes precedence over `password`.
+    passwordSecret:
+      name: ""
+      key: ""
     configMapName: ""
     secretName: ""
   endpoints:
@@ -338,6 +344,11 @@ datasources:
     enabled: false
     keystoreFilename: keystore.p12
     keystorePassword: changeit
+    # Optional: source the keystore password from a Secret instead of the literal above.
+    # Injected as an env var and referenced via $(VAR); takes precedence over keystorePassword.
+    keystorePasswordSecret:
+      name: ""
+      key: ""
     secret:
       name: ""
       key: keystore.p12
