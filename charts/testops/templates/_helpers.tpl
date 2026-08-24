@@ -108,6 +108,20 @@
 {{- end }}
 
 {{- define "renderCommonEnvs" }}
+{{- if and .Values.certificates.truststore.enabled .Values.certificates.truststore.passwordSecret.name }}
+  - name: TESTOPS_TRUSTSTORE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: {{ .Values.certificates.truststore.passwordSecret.name }}
+        key: {{ .Values.certificates.truststore.passwordSecret.key }}
+{{- end }}
+{{- if and .Values.datasources.clientTLS.enabled .Values.datasources.clientTLS.keystorePasswordSecret.name }}
+  - name: TESTOPS_KEYSTORE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: {{ .Values.datasources.clientTLS.keystorePasswordSecret.name }}
+        key: {{ .Values.datasources.clientTLS.keystorePasswordSecret.key }}
+{{- end }}
   - name: ALLURE_MAIL_ROOT
     value: "{{ .Values.email }}"
   - name: SPRING_PROFILES_ACTIVE
@@ -166,12 +180,12 @@
   - name: ALLURE_TASKEXECUTOR_QUEUECAPACITY
     value: "{{ printf "%.f" .Values.threadPoolQueueSize }}"
   - name: JAVA_TOOL_OPTIONS
+{{- $trustStore := include "renderTrustStoreJavaOpts" . }}
+{{- $clientStore := include "renderClientTlsJavaOpts" . }}
 {{- if .Values.proxy.enabled }}
-    value: "{{ template "renderJavaOpts" .Values.resources.limits.memory }} -Dhttps.proxyHost={{ .Values.proxy.proxyHost }} -Dhttp.proxyHost={{ .Values.proxy.proxyHost }} -Dhttps.proxyPort={{ .Values.proxy.proxyPort }} -Dhttp.proxyPort={{ .Values.proxy.proxyPort }} -Dspring.mail.properties.mail.smtp.proxy.host={{ .Values.proxy.proxyHost }} -Dspring.mail.properties.mail.smtp.proxy.port={{ .Values.proxy.proxyPort }} -Dhttps.nonProxyHosts={{ .Values.proxy.nonProxy }} -Dhttp.nonProxyHosts={{ .Values.proxy.nonProxy }} -Djavax.net.ssl.trustStore=/etc/pki/ca-trust/extracted/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit"
-{{- else if .Values.certificates.configmapName }}
-    value: "{{ template "renderJavaOpts" .Values.resources.limits.memory }} -Djavax.net.ssl.trustStore=/etc/pki/ca-trust/extracted/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit"
+    value: "{{ template "renderJavaOpts" .Values.resources.limits.memory }} -Dhttps.proxyHost={{ .Values.proxy.proxyHost }} -Dhttp.proxyHost={{ .Values.proxy.proxyHost }} -Dhttps.proxyPort={{ .Values.proxy.proxyPort }} -Dhttp.proxyPort={{ .Values.proxy.proxyPort }} -Dspring.mail.properties.mail.smtp.proxy.host={{ .Values.proxy.proxyHost }} -Dspring.mail.properties.mail.smtp.proxy.port={{ .Values.proxy.proxyPort }} -Dhttps.nonProxyHosts={{ .Values.proxy.nonProxy }} -Dhttp.nonProxyHosts={{ .Values.proxy.nonProxy }}{{ $trustStore }}{{ $clientStore }}"
 {{- else }}
-    value: "{{ template "renderJavaOpts" .Values.resources.limits.memory }}"
+    value: "{{ template "renderJavaOpts" .Values.resources.limits.memory }}{{ $trustStore }}{{ $clientStore }}"
 {{- end }}
 {{- if .Values.proxy.enabled }}
   - name: http_proxy
@@ -816,4 +830,31 @@ If not found, it constructs a default name using .Values.messaging.sqs.queuePref
       {{- .suffix -}}
     {{- end -}}
   {{- end -}}
+{{- end -}}
+
+
+{{/*
+JVM trustStore options.
+- certificates.truststore.enabled: use a ready PKCS12 truststore mounted at /etc/ssl/trust
+- else certificates.configmapName/secretName: use the keytool-built cacerts bundle
+*/}}
+{{- define "renderTrustStoreJavaOpts" -}}
+{{- if .Values.certificates.truststore.enabled -}}
+{{- $pw := .Values.certificates.truststore.password -}}
+{{- if .Values.certificates.truststore.passwordSecret.name -}}{{- $pw = "$(TESTOPS_TRUSTSTORE_PASSWORD)" -}}{{- end -}}
+{{- printf " -Djavax.net.ssl.trustStore=/etc/ssl/trust/%s -Djavax.net.ssl.trustStorePassword=%s -Djavax.net.ssl.trustStoreType=PKCS12" .Values.certificates.truststore.key $pw -}}
+{{- else if or .Values.certificates.configmapName .Values.certificates.secretName -}}
+{{- " -Djavax.net.ssl.trustStore=/etc/pki/ca-trust/extracted/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+JVM keyStore options for the DB client certificate (mutual TLS).
+*/}}
+{{- define "renderClientTlsJavaOpts" -}}
+{{- if .Values.datasources.clientTLS.enabled -}}
+{{- $pw := .Values.datasources.clientTLS.keystorePassword -}}
+{{- if .Values.datasources.clientTLS.keystorePasswordSecret.name -}}{{- $pw = "$(TESTOPS_KEYSTORE_PASSWORD)" -}}{{- end -}}
+{{- printf " -Djavax.net.ssl.keyStore=/etc/ssl/db-client/%s -Djavax.net.ssl.keyStorePassword=%s -Djavax.net.ssl.keyStoreType=PKCS12" .Values.datasources.clientTLS.keystoreFilename $pw -}}
+{{- end -}}
 {{- end -}}

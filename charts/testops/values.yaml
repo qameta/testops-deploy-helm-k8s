@@ -179,8 +179,29 @@ labels:
 # endpoints: ldaps.example.com:636,rabbit.example.com:5672
 ############################################################################################################
 certificates:
-  # In case you use self-signed certificates, make a configmap with list of certificates
+  # Option 1: PEM CA bundle imported into the JVM cacerts via keytool.
+  # Provide as a ConfigMap (configmapName) OR a Secret (secretName); the object must
+  # contain the bundle under `key` (default: trust-bundle.pem).
   configmapName:
+  secretName:
+  key: trust-bundle.pem
+  # Option 2: ready-made PKCS12 truststore, e.g. cert-manager trust-manager Bundle with
+  #   spec.target.additionalFormats.pkcs12: { key: truststore.p12, password: changeit, profile: Modern2023 }
+  # Mounted directly and passed to the JVM (-Djavax.net.ssl.trustStore=...); no keytool import.
+  # Source = ConfigMap OR Secret. Make sure the Bundle includes default CAs if the app
+  # also talks to public TLS endpoints (e.g. trust-manager sources: [{useDefaultCAs: true}, ...]).
+  truststore:
+    enabled: false
+    key: truststore.p12
+    password: changeit
+    # Optional: source the PKCS12 password from a Secret instead of the literal above.
+    # It is injected as an env var and referenced via $(VAR) in JAVA_TOOL_OPTIONS, so the
+    # password is not rendered into the container spec. Takes precedence over `password`.
+    passwordSecret:
+      name: ""
+      key: ""
+    configMapName: ""
+    secretName: ""
   endpoints:
 
 ############################################################################################################
@@ -316,6 +337,22 @@ datasources:
 # - hosts: List of database nodes managed by Patroni, typically including multiple replicas.
 # - targetServerType: Defines the type of database node to connect to (e.g., 'master' for write operations, 'replica' for read-only access).
 ############################################################################################################
+  clientTLS:
+    # Present a client certificate (mutual TLS) to the database. Material MUST be a
+    # PKCS12 keystore; applied JVM-wide, so it covers all datasources.
+    # Source = Secret (secret.name) OR CSI volume (csi:).
+    enabled: false
+    keystoreFilename: keystore.p12
+    keystorePassword: changeit
+    # Optional: source the keystore password from a Secret instead of the literal above.
+    # Injected as an env var and referenced via $(VAR); takes precedence over keystorePassword.
+    keystorePasswordSecret:
+      name: ""
+      key: ""
+    secret:
+      name: ""
+      key: keystore.p12
+    csi: {}
   patroni:
     enabled: false
     hosts:
@@ -1076,3 +1113,9 @@ vault:
 ############################################################################################################
 registrationEnabled: false
 autoApprove: false
+
+
+# Extra volumes/mounts for the application container (DB client keystores, custom CA
+# bundles, secrets-store CSI content, ...).
+extraVolumes: []
+extraVolumeMounts: []
