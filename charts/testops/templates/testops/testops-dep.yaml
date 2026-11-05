@@ -1,3 +1,9 @@
+{{- if and .Values.datasources.clientTLS.enabled (not (or .Values.datasources.clientTLS.secret.name .Values.datasources.clientTLS.csi)) }}
+{{- fail "datasources.clientTLS.enabled=true requires either datasources.clientTLS.secret.name or datasources.clientTLS.csi" }}
+{{- end }}
+{{- if and .Values.certificates.truststore.enabled (not (or .Values.certificates.truststore.secretName .Values.certificates.truststore.configMapName)) }}
+{{- fail "certificates.truststore.enabled=true requires either certificates.truststore.secretName or certificates.truststore.configMapName" }}
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -72,7 +78,7 @@ spec:
           command: [ 'sh', '-c',
             'until pg_isready -h {{ template "mainDBHost" . }} -p {{ template "mainDBPort" . }};
              do echo waiting for database; sleep 2; done;' ]
-{{- if .Values.certificates.configmapName }}
+{{- if and (not .Values.certificates.truststore.enabled) (or .Values.certificates.configmapName .Values.certificates.secretName) }}
         - name: certs-init
           image: amazoncorretto:17
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -82,7 +88,7 @@ spec:
             - |
               mkdir -p /etc/pki/ca-trust/extracted/{java,pem,openssl,edk2} &&
               update-ca-trust &&
-              keytool -alias trust-bundle.pem -import -keystore /etc/pki/ca-trust/extracted/java/cacerts -file /etc/pki/ca-trust/source/anchors/trust-bundle.pem -storepass changeit -noprompt
+              keytool -alias {{ .Values.certificates.key }} -import -keystore /etc/pki/ca-trust/extracted/java/cacerts -file /etc/pki/ca-trust/source/anchors/{{ .Values.certificates.key }} -storepass changeit -noprompt
           volumeMounts:
             - name: ssl-path
               mountPath: "/etc/pki/ca-trust/extracted"
@@ -180,9 +186,22 @@ spec:
               mountPath: "{{ .Values.vault.mountPath }}"
               readOnly: true
 {{- end }}
-{{- if .Values.certificates.configmapName }}
+{{- if and (not .Values.certificates.truststore.enabled) (or .Values.certificates.configmapName .Values.certificates.secretName) }}
             - name: ssl-path
               mountPath: "/etc/pki/ca-trust/extracted"
+{{- end }}
+{{- if .Values.certificates.truststore.enabled }}
+            - name: truststore
+              mountPath: /etc/ssl/trust
+              readOnly: true
+{{- end }}
+{{- if .Values.datasources.clientTLS.enabled }}
+            - name: db-client-tls
+              mountPath: /etc/ssl/db-client
+              readOnly: true
+{{- end }}
+{{- with .Values.extraVolumeMounts }}
+{{ toYaml . | nindent 12 }}
 {{- end }}
 {{- range .Values.customContainers }}
         - name: {{ .name }}
@@ -206,10 +225,50 @@ spec:
             volumeAttributes:
               secretProviderClass: {{ template "testops.fullname" . }}
 {{- end }}
-{{- if .Values.certificates.configmapName }}
+{{- if and (not .Values.certificates.truststore.enabled) (or .Values.certificates.configmapName .Values.certificates.secretName) }}
         - name: certs
+{{- if .Values.certificates.secretName }}
+          secret:
+            secretName: {{ .Values.certificates.secretName }}
+            items:
+              - key: {{ .Values.certificates.key }}
+                path: {{ .Values.certificates.key }}
+{{- else }}
           configMap:
             name: {{ .Values.certificates.configmapName }}
+{{- end }}
         - name: ssl-path
           emptyDir: {}
+{{- end }}
+{{- if .Values.certificates.truststore.enabled }}
+        - name: truststore
+{{- if .Values.certificates.truststore.secretName }}
+          secret:
+            secretName: {{ .Values.certificates.truststore.secretName }}
+            items:
+              - key: {{ .Values.certificates.truststore.key }}
+                path: {{ .Values.certificates.truststore.key }}
+{{- else if .Values.certificates.truststore.configMapName }}
+          configMap:
+            name: {{ .Values.certificates.truststore.configMapName }}
+            items:
+              - key: {{ .Values.certificates.truststore.key }}
+                path: {{ .Values.certificates.truststore.key }}
+{{- end }}
+{{- end }}
+{{- if .Values.datasources.clientTLS.enabled }}
+        - name: db-client-tls
+{{- if .Values.datasources.clientTLS.secret.name }}
+          secret:
+            secretName: {{ .Values.datasources.clientTLS.secret.name }}
+            items:
+              - key: {{ .Values.datasources.clientTLS.secret.key }}
+                path: {{ .Values.datasources.clientTLS.keystoreFilename }}
+{{- else if .Values.datasources.clientTLS.csi }}
+          csi:
+{{ toYaml .Values.datasources.clientTLS.csi | indent 12 }}
+{{- end }}
+{{- end }}
+{{- with .Values.extraVolumes }}
+{{ toYaml . | nindent 8 }}
 {{- end }}

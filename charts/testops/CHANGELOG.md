@@ -10,6 +10,15 @@ Entries are ordered by priority:
 4. `[BUGFIX]` Fixes for defects
 5. `[DOCS]` Update of the documentation in `values.yaml`
 
+## 5.28.0
+
+- [FEATURE] Added `datasources.clientTLS` to present a client certificate (mutual TLS) to the database. The PKCS12 keystore can be sourced from a Kubernetes Secret or a CSI volume (for example, the cert-manager CSI driver) and is applied JVM-wide, so it covers all datasources.
+- [FEATURE] Added `certificates.truststore` to provide the JVM trust store as a ready-made PKCS12 file (for example, from a cert-manager trust-manager Bundle `additionalFormats.pkcs12`) mounted from a Secret or a ConfigMap, without a `keytool` import step.
+- [FEATURE] Added `certificates.secretName` and `certificates.key` so the PEM CA bundle can also be provided from a Secret (previously ConfigMap-only).
+- [FEATURE] Added `extraVolumes` and `extraVolumeMounts` for the application container to mount additional volumes, including CSI sources.
+- [FEATURE] Added `certificates.truststore.passwordSecret` and `datasources.clientTLS.keystorePasswordSecret` to source the PKCS12 password from a Kubernetes Secret (injected as an env var and referenced via `$(VAR)`), so the password is not rendered into the container spec.
+- [ENHANCEMENT] The chart now fails rendering with a clear message when `datasources.clientTLS` or `certificates.truststore` is enabled without a source (Secret / ConfigMap / CSI).
+
 ## 5.27.2
 
 - [ENHANCEMENT] Improved `S3_SHARDED` configuration by moving additional storage credentials to Kubernetes secrets and adding per-storage `awsSTS.enabled` control. This allows each additional S3 storage to either use secret-based credentials or rely on AWS STS/IAM role authentication independently.
